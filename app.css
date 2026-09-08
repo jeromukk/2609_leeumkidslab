@@ -15,7 +15,7 @@
        url('assets/fonts/GabiaGosran.ttf')   format('truetype');
   font-weight: 400;
   font-style: normal;
-  font-display: swap;
+  font-display: block;   /* 폰트가 준비된 뒤 글자를 그림 - 전시 중 글꼴이 바뀌어 보이는 현상 방지 */
 }
 
 :root {
@@ -86,12 +86,12 @@ body { position: fixed; inset: 0; }
    IDLE
    ============================================================= */
 
-/* 큰 제목 "일상 속 사라짐" : 96px / 세로 중심 y = 347.5 */
+/* 큰 제목 "일상 속 사라짐" : 96px / 세로 중심 y = 352.5 (Figma 프레임 실측 대조 보정) */
 .idle__heading {
   position: absolute;
   left: 0;
   right: 0;
-  top: 347.5px;
+  top: 352.5px;
   transform: translateY(-50%);
   font-size: 96px;
   line-height: 1.2;
@@ -101,12 +101,12 @@ body { position: fixed; inset: 0; }
   font-weight: 400;
 }
 
-/* 회차 "-01-" : 64px / 세로 중심 y = 483.5 */
+/* 회차 "-01-" : 64px / 세로 중심 y = 486 (Figma 프레임 실측 대조 보정) */
 .idle__number {
   position: absolute;
   left: 0;
   right: 0;
-  top: 483.5px;
+  top: 486px;
   transform: translateY(-50%);
   font-size: 64px;
   line-height: 1.2;
@@ -155,7 +155,7 @@ body { position: fixed; inset: 0; }
   top: 410px;                        /* 프레임 세로 중앙 */
   transform: translateY(-50%);
   font-size: 64px;
-  line-height: 1.4;
+  line-height: 1.2;   /* Figma 프레임 실측 대조 */
   color: #FFFFFF;
   text-align: center;
   font-weight: 400;
