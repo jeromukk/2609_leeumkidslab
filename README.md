@@ -60,20 +60,31 @@ IDLE(기본 모드) ─ '영상 보기' 탭 ─▶ TITLE(소제목 페이드 인
 | `B.mp4` | 02 · 짝을 부르는 소리에 다가오는 건 사냥꾼 |
 | `C.mp4` | 03 · 차 소리에 묻히는 새소리 |
 
+### 파일 하나당 25MB 미만으로 맞춰 주세요
+
+Cloudflare Pages는 파일 하나가 **25MiB**를 넘으면 배포를 거부합니다.
+30초 영상이므로 평균 **5~6Mbps**로 맞추면 약 20MB가 됩니다.
+검정 배경 + 흰 선화 소재라 압축이 잘 먹어서 실제로는 더 작게 나옵니다.
+
 권장 내보내기 설정
 
 - 코덱: **H.264 (High)** + AAC 오디오 — 사파리에서 확실히 재생됩니다
 - 해상도: **2360 x 1640** (아이패드 화면의 2배)
-- 프레임: 30fps / 비트레이트 8~12Mbps
+- 프레임: 30fps / 비트레이트 평균 5~6Mbps, 최대 8Mbps
+- 오디오: AAC 128~160kbps
 - **Fast Start(웹 최적화) 켜기** — 없으면 재생 시작이 몇 초씩 늦어집니다
 
-Media Encoder에서는 H.264 프리셋에 "Fast Start" 체크,
 터미널이면:
 
 ```bash
 ffmpeg -i 원본.mov -c:v libx264 -profile:v high -pix_fmt yuv420p \
-       -crf 20 -c:a aac -b:a 192k -movflags +faststart A.mp4
+       -crf 22 -maxrate 8M -bufsize 16M \
+       -c:a aac -b:a 128k -movflags +faststart A.mp4
+ls -lh A.mp4   # 25MB 아래인지 확인
 ```
+
+25MB를 못 맞추면 Cloudflare R2(같은 계정의 파일 저장소, 무료 10GB)에 영상만 올리고
+`config.js`의 `video` 값을 R2 주소로 바꾸면 됩니다.
 
 영상 파일이 아직 없으면 앱은 포스터 이미지와 함께 "영상 파일이 없습니다" 안내를 띄우고
 자동으로 IDLE로 돌아갑니다. 지금 상태 그대로 배포해도 동작합니다.

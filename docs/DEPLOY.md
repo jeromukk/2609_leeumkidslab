@@ -18,7 +18,33 @@
 
 ---
 
-## A. GitHub 저장소 만들고 올리기
+## 방법 1. 직접 업로드 (가장 빠름 - GitHub 없이)
+
+`02_APP` 폴더 안의 **`배포용_ZIP만들기.command`** 를 파인더에서 더블클릭하면
+바로 위 `2608_LEEUM` 폴더에 `소리소문_배포_날짜.zip` 이 생깁니다.
+(앱 구동에 필요한 파일만 담고 git 기록·문서·스크립트는 제외합니다)
+
+1. https://dash.cloudflare.com 로그인 (무료 가입)
+2. 왼쪽 메뉴 **Workers & Pages > Create > Pages > Upload assets**
+3. 프로젝트 이름 입력 (예: `leeum-soriso`)
+4. 만들어진 **zip 파일을 창에 끌어다 놓기**
+5. **Deploy site** → 1분 안에 주소가 나옵니다
+
+수정한 뒤 다시 올릴 때는 zip을 새로 만들어서
+프로젝트 화면 > **Create deployment** 에 끌어다 놓으면 됩니다.
+
+> **주의 - 파일 하나당 25MB**
+> Cloudflare Pages는 파일 하나가 25MiB를 넘으면 거부합니다.
+> 영상은 평균 5~6Mbps로 내보내 주세요 (30초 기준 약 20MB).
+> 드래그 업로드는 파일 개수 1,000개까지 가능한데, 이 앱은 20개 남짓이라 여유롭습니다.
+
+---
+
+## 방법 2. GitHub 연결 (자동 배포)
+
+수정할 일이 잦다면 이쪽이 편합니다. 푸시하면 알아서 다시 배포됩니다.
+
+### A. GitHub 저장소 만들고 올리기
 
 터미널(응용 프로그램 > 유틸리티 > 터미널)에서 02_APP 폴더로 이동해 실행합니다.
 
@@ -26,7 +52,7 @@
 cd ~/Desktop/yukyung/01.작업/2026/2608_LEEUM/02_APP
 ```
 
-### A-1. GitHub 웹사이트에서 저장소 만들기 (가장 쉬움)
+#### A-1. GitHub 웹사이트에서 저장소 만들기 (가장 쉬움)
 
 1. https://github.com/new 접속
 2. Repository name: `leeum-soriso` (원하는 이름)
@@ -48,7 +74,7 @@ git push -u origin main
 > Generate new token > `repo` 체크 > 생성된 문자열을 비밀번호 자리에 붙여넣기.
 > 한 번 넣으면 macOS 키체인에 저장돼서 다음부터는 안 물어봅니다.
 
-### A-2. 영상 파일 때문에 푸시가 안 될 때
+#### A-2. 영상 파일 때문에 푸시가 안 될 때
 
 GitHub은 파일 1개당 100MB, 저장소 전체 1GB를 넘기면 거부합니다.
 30초 영상 3개(각 30~45MB)면 문제없지만, 더 커지면 두 가지 선택지가 있습니다.
@@ -60,7 +86,7 @@ GitHub은 파일 1개당 100MB, 저장소 전체 1GB를 넘기면 거부합니�
 
 ---
 
-## B. Cloudflare Pages 연결
+### B. Cloudflare Pages 연결
 
 1. https://dash.cloudflare.com 가입/로그인 (무료)
 2. 왼쪽 메뉴 **Workers & Pages > Create > Pages > Connect to Git**
@@ -88,7 +114,7 @@ https://leeum-soriso.pages.dev/index.html?type=C
 
 ---
 
-## C. 인터넷 없이도 돌아가게 하려면 (선택)
+## 방법 3. 인터넷 없이도 돌아가게 하려면 (선택)
 
 전시장 와이파이가 불안하면 아래 중 하나를 씁니다.
 
@@ -101,13 +127,14 @@ https://leeum-soriso.pages.dev/index.html?type=C
 
 ---
 
-## D. 자주 겪는 문제
+## 자주 겪는 문제
 
 | 증상 | 원인과 해결 |
 |---|---|
 | 수정했는데 아이패드에 반영이 안 됨 | `sw.js`의 `VERSION` 값을 올렸는지 확인 → 앱 완전 종료 후 재실행 |
 | 소리가 안 남 | 제어 센터 무음 해제 · 볼륨 확인. 앱 코드로는 해결 불가 |
 | 영상 시작이 느림 | mp4를 **Fast Start(웹 최적화)** 로 다시 내보내기 |
+| 배포할 때 파일이 거부됨 | 영상이 25MB를 넘음. 비트레이트를 낮춰 다시 내보내기 |
 | 글꼴이 다르게 보임 | `assets/fonts/GabiaGosran.woff2` 가 들어 있는지 확인 |
 | 관람객이 앱을 빠져나감 | 가이드 접근을 켜지 않은 상태. 세팅 체크리스트 2·6번 확인 |
 | 화면이 꺼짐 | 자동 잠금이 '안 함'인지 확인 |
