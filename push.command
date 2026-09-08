@@ -21,7 +21,7 @@ read -r -p "저장소 이름 [leeum-soriso]: " GH_REPO
 GH_REPO=${GH_REPO:-leeum-soriso}
 
 echo
-echo "▸ 저장소 생성 중..."
+echo "▸ 저장소 확인 중 (없으면 새로 만듭니다)..."
 CODE=$(curl -s -o /tmp/gh_resp.json -w "%{http_code}" \
   -H "Authorization: token $GH_TOKEN" \
   -H "Accept: application/vnd.github+json" \
@@ -44,7 +44,12 @@ echo "▸ 업로드 중..."
 git remote remove origin 2>/dev/null
 git remote add origin "https://$GH_USER:$GH_TOKEN@github.com/$GH_USER/$GH_REPO.git"
 git branch -M main
-git push -u origin main || { echo "  업로드 실패"; read -r -p "엔터로 종료" _; exit 1; }
+if ! git push -u origin main 2>/dev/null; then
+  echo "  저장소에 이미 파일이 있어 합치는 중..."
+  git pull --rebase --allow-unrelated-histories origin main || \
+  git pull --rebase --allow-unrelated-histories origin master || true
+  git push -u origin main || { echo "  업로드 실패"; read -r -p "엔터로 종료" _; exit 1; }
+fi
 
 # 주소에서 토큰 제거 (파일에 토큰이 남지 않도록)
 git remote set-url origin "https://github.com/$GH_USER/$GH_REPO.git"
