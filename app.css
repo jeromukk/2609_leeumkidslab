@@ -1,0 +1,274 @@
+/* =============================================================
+   소리소문 생존 - 스타일
+   디자인 기준 프레임: 1180 x 820 (아이패드 가로)
+   좌표는 Figma 프레임 실측값 그대로 쓰고,
+   화면 크기에 맞춰 .frame 전체를 --s 배율로 확대/축소합니다.
+   ============================================================= */
+
+/* ---------- 폰트 : 가비아 고스란체 ----------
+   assets/fonts/ 에 폰트 파일을 넣으면 적용됩니다.
+   파일이 없으면 fallback(애플 산돌고딕)으로 자동 대체됩니다. */
+@font-face {
+  font-family: 'Gabia Gosran';
+  src: url('assets/fonts/GabiaGosran.woff2') format('woff2'),
+       url('assets/fonts/GabiaGosran.woff')  format('woff'),
+       url('assets/fonts/GabiaGosran.ttf')   format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --c-idle-bg:  #E6DDC5;   /* IDLE 배경 (베이지) */
+  --c-ink:      #000000;   /* IDLE 글자 */
+  --c-title-bg: #000000;   /* TITLE 배경 */
+  --c-video-bg: #231F20;   /* VIDEO 배경 */
+  --c-stroke:   #1B1B1B;   /* 버튼 테두리 */
+
+  --font: 'Gabia Gosran', 'Apple SD Gothic Neo', 'Pretendard',
+          -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --s: 1;                  /* 화면 맞춤 배율 (app.js가 계산) */
+  --title-fade: 1200ms;    /* 타이틀 페이드 인 시간 (config.js가 덮어씀) */
+}
+
+/* ---------- 리셋 & 전시용 조작 잠금 ---------- */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #000;
+  font-family: var(--font);
+  font-weight: 400;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  overscroll-behavior: none;
+}
+body { position: fixed; inset: 0; }
+
+/* ---------- 화면 전환 ---------- */
+.screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 600ms ease, visibility 0s linear 600ms;
+}
+.screen.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 600ms ease, visibility 0s;
+}
+
+.screen--idle  { background: var(--c-idle-bg);  z-index: 1; }
+.screen--title { background: var(--c-title-bg); z-index: 2; }
+.screen--video { background: var(--c-video-bg); z-index: 3; }
+
+/* ---------- 1180 x 820 좌표 무대 ---------- */
+.frame {
+  position: relative;
+  flex: none;
+  width: 1180px;
+  height: 820px;
+  transform: scale(var(--s));
+  transform-origin: center center;
+}
+
+/* =============================================================
+   IDLE
+   ============================================================= */
+
+/* 큰 제목 "일상 속 사라짐" : 96px / 세로 중심 y = 347.5 */
+.idle__heading {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 347.5px;
+  transform: translateY(-50%);
+  font-size: 96px;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  color: var(--c-ink);
+  text-align: center;
+  font-weight: 400;
+}
+
+/* 회차 "-01-" : 64px / 세로 중심 y = 483.5 */
+.idle__number {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 483.5px;
+  transform: translateY(-50%);
+  font-size: 64px;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  color: var(--c-ink);
+  text-align: center;
+}
+
+/* '영상 보기' 버튼 : 235 x 82 / 중심 (590, 680) */
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 235px;
+  height: 82px;
+  border: 5px solid var(--c-stroke);
+  border-radius: 41px;
+  background: #FFFFFF;
+  color: #000000;
+  font-family: var(--font);
+  font-size: 36px;
+  letter-spacing: -0.04em;
+  line-height: 1;
+  padding-bottom: 4px;               /* 한글 시각 중심 보정 */
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.screen--idle .pill {
+  position: absolute;
+  left: 50%;
+  top: 680px;
+  transform: translate(-50%, -50%);
+  filter: drop-shadow(2px 4px 2px rgba(0, 0, 0, 0.25));
+  transition: transform 120ms ease;
+}
+.screen--idle .pill:active { transform: translate(-50%, -50%) scale(0.95); }
+
+/* =============================================================
+   TITLE
+   ============================================================= */
+.title__text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 410px;                        /* 프레임 세로 중앙 */
+  transform: translateY(-50%);
+  font-size: 64px;
+  line-height: 1.4;
+  color: #FFFFFF;
+  text-align: center;
+  font-weight: 400;
+  opacity: 0;
+}
+.title__text.is-in {
+  opacity: 1;
+  transition: opacity var(--title-fade) ease-in;
+}
+
+/* =============================================================
+   VIDEO
+   ============================================================= */
+.video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;                 /* 화면을 꽉 채움(가장자리 살짝 잘림) */
+  background: var(--c-video-bg);
+}
+
+.end {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 400ms ease, visibility 0s linear 400ms;
+}
+.end.is-active {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 400ms ease, visibility 0s;
+}
+.end .pill {
+  transform: scale(var(--s));
+  transition: transform 120ms ease;
+}
+.end .pill:active { transform: scale(calc(var(--s) * 0.95)); }
+
+.pill--dark {
+  background: #FFFFFF;
+  border-color: #FFFFFF;
+}
+
+/* 영상 없음 안내 */
+.missing {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: rgba(255, 255, 255, 0.85);
+  text-align: center;
+  padding: 40px;
+}
+.missing[hidden] { display: none; }
+.missing__title { font-size: 34px; }
+.missing__path  { font-size: 22px; opacity: 0.55; }
+.missing__hint  { font-size: 20px; opacity: 0.45; }
+
+/* =============================================================
+   관리자 패널 (왼쪽 위 모서리 5회 탭)
+   ============================================================= */
+.hotspot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 90px;
+  height: 90px;
+  background: transparent;
+  border: 0;
+  z-index: 90;
+}
+
+.admin {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  background: rgba(0, 0, 0, 0.9);
+  color: #fff;
+}
+.admin[hidden] { display: none; }
+.admin__title { font-size: 30px; }
+.admin__row { display: flex; gap: 16px; }
+.admin__btn {
+  font-family: var(--font);
+  font-size: 26px;
+  padding: 18px 30px;
+  border-radius: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: transparent;
+  color: #fff;
+}
+.admin__btn.is-on { background: #fff; color: #000; border-color: #fff; }
+.admin__info { font-size: 18px; opacity: 0.6; text-align: center; line-height: 1.7; }
+.admin__close {
+  font-family: var(--font);
+  font-size: 22px;
+  padding: 14px 34px;
+  border-radius: 12px;
+  border: 0;
+  background: #fff;
+  color: #000;
+}
