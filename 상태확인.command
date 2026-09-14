@@ -7,7 +7,7 @@ set +m
 cd "$(dirname "$0")" || exit 1
 
 OUT="$(pwd)/_상태확인.txt"
-PROJECT="2609-leeumkidslab"
+PROJECT="2609-leeum-kidslab"
 
 if command -v wrangler >/dev/null 2>&1 && wrangler --version >/dev/null 2>&1; then
   W="wrangler"
