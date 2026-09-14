@@ -11,6 +11,11 @@ set +m                 # 백그라운드 작업 종료 알림("Terminated") 숨�
 cd "$(dirname "$0")" || exit 1
 
 PROJECT="2609-leeumkidslab"
+
+# Cloudflare Pages 는 "운영 브랜치" 로 올려야 기본 주소에 반영됩니다.
+# 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 같은 미리보기 주소에만 올라갑니다.
+BRANCH="production"
+
 START=$(date +%s)
 LOG="$(pwd)/_배포로그.txt"
 
@@ -127,7 +132,7 @@ trap 'kill $HEARTBEAT 2>/dev/null; rm -rf "$STAGE"' EXIT
 
 $WRANGLER pages deploy "$STAGE" \
   --project-name="$PROJECT" \
-  --branch=main \
+  --branch="$BRANCH" \
   --commit-dirty=true 2>&1 | tee "$LOG"
 
 RESULT=${PIPESTATUS[0]}
@@ -158,18 +163,43 @@ if [ "$RESULT" -ne 0 ]; then
 fi
 
 BASE="https://$PROJECT.pages.dev"
-echo "세 주소가 실제로 열리는지 확인합니다..."
+echo "기본 주소에 이번 내용이 올라갔는지 확인합니다..."
 echo
+
+# 올린 버전 표식이 기본 주소에서 그대로 보이면 성공입니다
+LIVE=$(curl -s -m 20 "$BASE/sw.js" | sed -n "s/^var VERSION = '\(.*\)';/\1/p" | head -1)
 OK=1
-for p in /a/ /b/ /c/; do
-  CODE=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$BASE$p")
-  if [ "$CODE" = "200" ]; then
-    printf "  ✓  %s%s\n" "$BASE" "$p"
+
+if [ "$LIVE" != "$STAMP" ]; then
+  OK=0
+  echo "  ✗  기본 주소에는 아직 예전 내용이 있습니다"
+  echo "     올린 버전 : $STAMP"
+  echo "     기본 주소 : ${LIVE:-확인 실패}"
+  echo
+  echo "     이번 배포는 미리보기 주소로만 올라갔습니다."
+  echo "     Cloudflare 대시보드에서 프로젝트의 '운영 브랜치' 이름을 확인한 뒤"
+  echo "     이 파일 위쪽의  BRANCH=\"$BRANCH\"  를 그 이름으로 바꿔 주세요."
+  echo "     (Workers & Pages > $PROJECT > Settings > Build > Production branch)"
+else
+  for p in /a/ /b/ /c/; do
+    CODE=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$BASE$p")
+    if [ "$CODE" = "200" ]; then
+      printf "  ✓  %s%s\n" "$BASE" "$p"
+    else
+      printf "  ✗  %s%s   (응답 %s)\n" "$BASE" "$p" "$CODE"
+      OK=0
+    fi
+  done
+
+  # 영상이 제대로 올라갔는지도 확인
+  VSIZE=$(curl -sI -m 20 "$BASE/assets/video/C.mp4" | tr -d '\r' | sed -n 's/^[Cc]ontent-[Ll]ength: //p' | head -1)
+  if [ "${VSIZE:-0}" -gt 1000000 ] 2>/dev/null; then
+    printf "  ✓  03 영상  (%s MB)\n" "$(( VSIZE / 1048576 ))"
   else
-    printf "  ✗  %s%s   (응답 %s)\n" "$BASE" "$p" "$CODE"
+    printf "  ✗  03 영상이 올라가지 않았습니다\n"
     OK=0
   fi
-done
+fi
 
 echo
 line
@@ -183,8 +213,8 @@ if [ "$OK" = "1" ]; then
   echo
   echo "설치 안내 화면: $BASE/"
 else
-  echo "업로드는 끝났지만 주소가 아직 응답하지 않습니다."
-  echo "1~2분 뒤 브라우저에서 직접 열어 보세요: $BASE/"
+  echo "업로드는 끝났지만 기본 주소에 반영되지 않았습니다."
+  echo "위 안내를 확인해 주세요."
 fi
 echo
 echo "※ 배포할 때마다 아이패드가 새 파일을 받도록 자동 처리됩니다."
