@@ -103,30 +103,36 @@ echo "아래 진행 표시가 30초 이상 멈춰 있으면 Ctrl+C 후 다시 �
 echo "(이미 올라간 파일은 건너뛰므로 재시도가 빠릅니다)"
 echo
 
-# 프로젝트가 없으면 운영 브랜치를 지정해서 직접 만듭니다.
-# 이렇게 만들면 앞으로 항상 기본 주소로 바로 배포됩니다.
-if ! $WRANGLER pages project list 2>/dev/null | grep -q "[[:space:]]$PROJECT[[:space:]]"; then
-  echo "프로젝트 '$PROJECT' 를 새로 만듭니다 (운영 브랜치: $BRANCH)"
-  $WRANGLER pages project create "$PROJECT" --production-branch="$BRANCH" 2>&1 | tail -4
-  echo
-fi
-
-# 지금 운영 중인 배포가 어느 브랜치인지 알아냅니다
-if [ -z "$BRANCH" ]; then
-  echo "운영 브랜치를 확인하는 중..."
+# 프로젝트가 이미 있으면 그 프로젝트의 운영 브랜치를 그대로 따라갑니다.
+# (대시보드에서 zip 으로 먼저 만든 경우 브랜치 이름이 프로젝트 이름으로 잡힙니다)
+# 없으면 운영 브랜치를 main 으로 지정해 직접 만듭니다.
+if $WRANGLER pages project list 2>/dev/null | grep -q "[[:space:]]$PROJECT[[:space:]]"; then
+  echo "기존 프로젝트를 찾았습니다. 운영 브랜치를 확인합니다..."
   DEPLOYS=$($WRANGLER pages deployment list --project-name="$PROJECT" 2>/dev/null)
   echo "$DEPLOYS" > "$(pwd)/_배포목록.txt"
-  BRANCH=$(echo "$DEPLOYS" | grep -i "production" | head -1 \
-           | sed 's/│/|/g' | awk -F'|' '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i)}; print $3}')
-  # 표 형식이 다를 수 있으니 못 찾으면 흔한 이름들을 순서대로 시도합니다
-  if [ -z "$BRANCH" ]; then
-    BRANCH=$(echo "$DEPLOYS" | grep -iE "production" | head -1 | grep -oE "[A-Za-z0-9._/-]+" | sed -n '3p')
+  FOUND=$(echo "$DEPLOYS" | awk -F'│' '
+    { for (i=1;i<=NF;i++) gsub(/^[ \t]+|[ \t]+$/,"",$i)
+      for (i=1;i<=NF;i++) if ($i=="Production") { print $(i+1); exit } }')
+  if [ -n "$FOUND" ]; then
+    BRANCH="$FOUND"
+    echo "운영 브랜치: $BRANCH"
+    case "$BRANCH" in
+      *_*)
+        echo
+        echo "⚠︎ 브랜치 이름에 밑줄(_)이 들어 있어 배포가 만들어지지 않습니다."
+        echo "  이 프로젝트는 대시보드에서 지우고, 하이픈만 쓴 이름으로 다시 만들어야 합니다."
+        read -r -p "엔터로 종료" _
+        exit 1
+        ;;
+    esac
+  else
+    echo "운영 브랜치를 찾지 못해 $BRANCH 로 진행합니다."
   fi
-  [ -z "$BRANCH" ] && BRANCH="main"
-  echo "운영 브랜치: $BRANCH"
-  echo "(전체 목록은 _배포목록.txt 에 저장했습니다)"
-  echo
+else
+  echo "프로젝트 '$PROJECT' 를 새로 만듭니다 (운영 브랜치: $BRANCH)"
+  $WRANGLER pages project create "$PROJECT" --production-branch="$BRANCH" 2>&1 | tail -4
 fi
+echo
 
 # 10초마다 경과 시간을 찍어서 멈춘 건지 진행 중인지 보이게 합니다
 ( while true; do sleep 10; echo "      … $(secs)"; done ) &
