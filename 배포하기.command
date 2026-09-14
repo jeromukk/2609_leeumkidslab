@@ -49,7 +49,25 @@ fi
 echo "배포 중..."
 echo
 
-npx --yes wrangler@latest pages deploy "$STAGE" \
+# wrangler 를 어디서 실행할지 정합니다.
+# 한 번 설치해 두면 매번 내려받지 않아 훨씬 빠릅니다.
+if command -v wrangler >/dev/null 2>&1; then
+  WRANGLER="wrangler"
+elif [ -x "./node_modules/.bin/wrangler" ]; then
+  WRANGLER="./node_modules/.bin/wrangler"
+else
+  echo "wrangler 를 처음 한 번 설치합니다 (1~2분, 다음부터는 생략됩니다)..."
+  echo
+  npm install --no-fund --no-audit --silent wrangler || {
+    echo "설치 실패. 인터넷 연결을 확인해 주세요."
+    read -r -p "엔터로 종료" _
+    exit 1
+  }
+  WRANGLER="./node_modules/.bin/wrangler"
+  echo
+fi
+
+"$WRANGLER" pages deploy "$STAGE" \
   --project-name="$PROJECT" \
   --branch=main \
   --commit-dirty=true
