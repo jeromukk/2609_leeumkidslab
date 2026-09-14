@@ -2,74 +2,85 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<title>소리소문 생존</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>소리소문 생존 - 설치 안내</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#E6DDC5">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="소리소문 생존">
-<link rel="manifest" href="manifest.webmanifest">
+<meta name="robots" content="noindex">
 <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
 <link rel="preload" href="assets/fonts/GabiaGosran.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="app.css">
+<style>
+  /* 이 페이지는 설치용 안내 화면입니다. 관람객에게는 보이지 않습니다. */
+  body {
+    position: static;
+    min-height: 100%;
+    background: var(--c-idle-bg);
+    color: #1B1B1B;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+    overflow: auto;
+    -webkit-user-select: text;
+    user-select: text;
+  }
+  .wrap { width: 100%; max-width: 560px; }
+  .wrap h1 { font-size: 34px; letter-spacing: -0.03em; margin-bottom: 6px; font-weight: 400; }
+  .wrap .sub { font-size: 16px; opacity: 0.55; margin-bottom: 34px; line-height: 1.6; }
+  .list { display: flex; flex-direction: column; gap: 12px; margin-bottom: 34px; }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 20px 24px;
+    background: #fff;
+    border: 3px solid var(--c-stroke);
+    border-radius: 20px;
+    color: inherit;
+    text-decoration: none;
+  }
+  .item:active { transform: scale(0.99); }
+  .item .no { font-size: 28px; letter-spacing: -0.03em; flex: none; }
+  .item .txt { font-size: 17px; line-height: 1.45; letter-spacing: -0.02em; }
+  .item .go { margin-left: auto; font-size: 15px; opacity: 0.4; flex: none; }
+  .note { font-size: 15px; line-height: 1.9; opacity: 0.6; }
+  .note b { font-weight: 400; opacity: 1; }
+  .note ol { padding-left: 1.2em; }
+</style>
 </head>
 <body>
+<div class="wrap">
+  <h1>소리소문 생존</h1>
+  <p class="sub">아이패드 3대 설치용 안내 화면입니다.<br>각 기기에서 맡은 번호를 열고 홈 화면에 추가하세요.</p>
 
-<!-- ───────── IDLE : 기본 모드(화면보호기) ───────── -->
-<section id="screen-idle" class="screen screen--idle is-active">
-  <div class="frame">
-    <h1 id="idle-heading" class="idle__heading">일상 속 사라짐</h1>
-    <p  id="idle-number"  class="idle__number">-01-</p>
-    <button id="btn-play" class="pill" type="button">
-      <span id="btn-play-label">영상 보기</span>
-    </button>
-  </div>
-</section>
-
-<!-- ───────── TITLE : 소제목 페이드 인 ───────── -->
-<section id="screen-title" class="screen screen--title">
-  <div class="frame">
-    <h2 id="title-text" class="title__text"></h2>
-  </div>
-</section>
-
-<!-- ───────── VIDEO : 영상 + 사운드 ───────── -->
-<section id="screen-video" class="screen screen--video">
-  <video id="video" class="video"
-         playsinline webkit-playsinline
-         preload="auto" disablepictureinpicture
-         controlslist="nodownload noplaybackrate noremoteplayback"></video>
-
-  <!-- 영상 종료 후 오버레이 -->
-  <div id="end-overlay" class="end">
-    <button id="btn-restart" class="pill pill--dark" type="button">
-      <span id="btn-restart-label">처음으로</span>
-    </button>
+  <div class="list">
+    <a class="item" href="a/">
+      <span class="no">01</span>
+      <span class="txt">풀벌레 소리 대신 들리는<br>사라짐의 소리</span>
+      <span class="go">열기 →</span>
+    </a>
+    <a class="item" href="b/">
+      <span class="no">02</span>
+      <span class="txt">짝을 부르는 소리에<br>다가오는 건 사냥꾼</span>
+      <span class="go">열기 →</span>
+    </a>
+    <a class="item" href="c/">
+      <span class="no">03</span>
+      <span class="txt">차 소리에 묻히는<br>새소리</span>
+      <span class="go">열기 →</span>
+    </a>
   </div>
 
-  <!-- 영상 파일이 아직 없을 때만 표시 -->
-  <div id="video-missing" class="missing" hidden>
-    <p class="missing__title">영상 파일이 없습니다</p>
-    <p class="missing__path"></p>
-    <p class="missing__hint">assets/video/ 폴더에 A.mp4 / B.mp4 / C.mp4 를 넣어 주세요.</p>
+  <div class="note">
+    <b>설치 순서</b>
+    <ol>
+      <li>위에서 해당 번호를 연다</li>
+      <li>사파리 공유 버튼 → 홈 화면에 추가</li>
+      <li>설정 → 디스플레이 및 밝기 → 자동 잠금 → 안 함</li>
+      <li>제어 센터에서 무음 해제, 볼륨 확인</li>
+      <li>홈 화면 아이콘으로 실행 → 가이드 접근 시작</li>
+    </ol>
   </div>
-</section>
-
-<!-- 관리자용: 왼쪽 위 모서리를 5번 빠르게 탭하면 열립니다. -->
-<button id="admin-hotspot" class="hotspot" type="button" aria-label="관리자"></button>
-<div id="admin-panel" class="admin" hidden>
-  <p class="admin__title">이 아이패드의 종류</p>
-  <div class="admin__row">
-    <button class="admin__btn" data-type="A">A · 01</button>
-    <button class="admin__btn" data-type="B">B · 02</button>
-    <button class="admin__btn" data-type="C">C · 03</button>
-  </div>
-  <p id="admin-info" class="admin__info"></p>
-  <button id="admin-close" class="admin__close" type="button">닫기</button>
 </div>
-
-<script src="config.js"></script>
-<script src="app.js"></script>
 </body>
 </html>

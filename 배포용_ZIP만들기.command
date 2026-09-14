@@ -12,7 +12,7 @@ echo
 
 # 앱 구동에 필요한 것만 담습니다 (git 기록·문서·스크립트 제외)
 zip -r -q "$OUT" \
-  index.html app.css app.js config.js sw.js manifest.webmanifest _headers assets \
+  index.html a b c app.css app.js config.js sw.js _headers assets \
   -x "*.DS_Store" -x "assets/*/README.txt"
 
 echo "완료: $OUT"

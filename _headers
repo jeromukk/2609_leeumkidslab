@@ -2,12 +2,22 @@
 /*
   X-Content-Type-Options: nosniff
   Referrer-Policy: no-referrer
+  X-Robots-Tag: noindex
 
 # 서비스워커는 절대 캐시하지 않기 (배포 즉시 반영되도록)
 /sw.js
   Cache-Control: no-cache, no-store, must-revalidate
 
 /index.html
+  Cache-Control: no-cache
+
+/a/*
+  Cache-Control: no-cache
+
+/b/*
+  Cache-Control: no-cache
+
+/c/*
   Cache-Control: no-cache
 
 /config.js

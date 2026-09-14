@@ -90,7 +90,7 @@ GitHub은 파일 1개당 100MB, 저장소 전체 1GB를 넘기면 거부합니�
 
 1. https://dash.cloudflare.com 가입/로그인 (무료)
 2. 왼쪽 메뉴 **Workers & Pages > Create > Pages > Connect to Git**
-3. GitHub 계정 연결 → `leeum-soriso` 저장소 선택
+3. GitHub 계정 연결 → `2609_leeumkidslab` 저장소 선택
 4. 빌드 설정 — **이 프로젝트는 빌드가 필요 없습니다**
 
    | 항목 | 값 |
@@ -106,11 +106,19 @@ GitHub은 파일 1개당 100MB, 저장소 전체 1GB를 넘기면 거부합니�
 
 ### 아이패드에서 열 주소
 
+한 번 배포하면 주소가 세 개 생깁니다.
+
 ```
-https://leeum-soriso.pages.dev/index.html?type=A
-https://leeum-soriso.pages.dev/index.html?type=B
-https://leeum-soriso.pages.dev/index.html?type=C
+https://2609-leeumkidslab.pages.dev/a/     01
+https://2609-leeumkidslab.pages.dev/b/     02
+https://2609-leeumkidslab.pages.dev/c/     03
 ```
+
+`https://2609-leeumkidslab.pages.dev/` 는 세 주소를 고르는 설치 안내 화면입니다.
+
+세 주소를 완전히 다른 도메인으로 나눠야 한다면, 같은 저장소를 Cloudflare Pages에
+프로젝트 세 개로 연결하고 각 프로젝트의 **Build output directory** 를
+`a` / `b` / `c` 로 지정하면 됩니다. 저장소는 하나 그대로 쓰고 코드도 한 벌만 관리합니다.
 
 ---
 

@@ -1,6 +1,11 @@
 /* =============================================================
    소리소문 생존 - 동작
    흐름 : IDLE → TITLE(페이드 인) → VIDEO(영상+사운드) → END → IDLE
+
+   화면 마크업도 이 파일이 직접 만듭니다.
+   덕분에 a / b / c 폴더의 index.html 은 몇 줄짜리 껍데기이고,
+   화면을 고칠 일이 생겨도 이 파일 하나만 고치면 3종에 모두 반영됩니다.
+
    내용/타이밍 수정은 config.js 에서 하세요.
    ============================================================= */
 (function () {
@@ -8,28 +13,9 @@
 
   var CFG    = window.SORISO_CONFIG;
   var TIMING = CFG.timing;
+  var BASE   = window.SORISO_BASE || '';     // a/b/c 폴더에서는 '../'
+  var FIXED  = window.SORISO_TYPE || '';     // 폴더에 고정된 종류
   var STORE_KEY = 'soriso.type';
-
-  /* ---------- 엘리먼트 ---------- */
-  var el = {
-    idle:        document.getElementById('screen-idle'),
-    title:       document.getElementById('screen-title'),
-    video:       document.getElementById('screen-video'),
-    heading:     document.getElementById('idle-heading'),
-    number:      document.getElementById('idle-number'),
-    btnPlay:     document.getElementById('btn-play'),
-    btnPlayLbl:  document.getElementById('btn-play-label'),
-    titleText:   document.getElementById('title-text'),
-    videoEl:     document.getElementById('video'),
-    end:         document.getElementById('end-overlay'),
-    btnRestart:  document.getElementById('btn-restart'),
-    btnRestartL: document.getElementById('btn-restart-label'),
-    missing:     document.getElementById('video-missing'),
-    hotspot:     document.getElementById('admin-hotspot'),
-    admin:       document.getElementById('admin-panel'),
-    adminInfo:   document.getElementById('admin-info'),
-    adminClose:  document.getElementById('admin-close')
-  };
 
   var timers = [];
   var state  = 'idle';
@@ -39,10 +25,12 @@
   function clearTimers() { timers.forEach(clearTimeout); timers = []; }
 
   /* =============================================================
-     1. 이 아이패드가 어떤 종류인지 결정
-     - 주소에 ?type=B 를 붙여 한 번 열면 기기에 저장됩니다.
+     1. 이 화면이 어떤 종류인지 결정
+     우선순위 : 폴더 고정값 → 주소의 ?type= → 기기에 저장된 값 → 기본값
      ============================================================= */
   function resolveType() {
+    if (CFG.types[FIXED]) return FIXED;
+
     var q = new URLSearchParams(location.search).get('type');
     var h = (location.hash || '').replace('#', '');
     var picked = (q || h || '').toUpperCase();
@@ -62,50 +50,91 @@
   var DATA = CFG.types[TYPE];
 
   /* =============================================================
-     2. 화면 맞춤 배율
+     2. 화면 만들기
+     ============================================================= */
+  function esc(s) {
+    return String(s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  document.body.insertAdjacentHTML('afterbegin', [
+    '<section id="screen-idle" class="screen screen--idle is-active">',
+    '  <div class="frame">',
+    '    <h1 class="idle__heading">' + esc(DATA.heading) + '</h1>',
+    '    <p class="idle__number">' + esc(DATA.number) + '</p>',
+    '    <button id="btn-play" class="pill" type="button">' + esc(CFG.labels.playButton) + '</button>',
+    '  </div>',
+    '</section>',
+
+    '<section id="screen-title" class="screen screen--title">',
+    '  <div class="frame">',
+    '    <h2 id="title-text" class="title__text">' +
+         DATA.titleLines.map(esc).join('<br>') + '</h2>',
+    '  </div>',
+    '</section>',
+
+    '<section id="screen-video" class="screen screen--video">',
+    '  <video id="video" class="video" playsinline webkit-playsinline',
+    '         preload="auto" disablepictureinpicture',
+    '         controlslist="nodownload noplaybackrate noremoteplayback"></video>',
+    '  <div id="end-overlay" class="end">',
+    '    <button id="btn-restart" class="pill pill--dark" type="button">' +
+           esc(CFG.labels.restartButton) + '</button>',
+    '  </div>',
+    '  <div id="video-missing" class="missing" hidden>',
+    '    <p class="missing__title">영상 파일이 없습니다</p>',
+    '    <p class="missing__path">' + esc(BASE + DATA.video) + '</p>',
+    '    <p class="missing__hint">assets/video/ 폴더에 A.mp4 / B.mp4 / C.mp4 를 넣어 주세요.</p>',
+    '  </div>',
+    '</section>',
+
+    '<button id="admin-hotspot" class="hotspot" type="button" aria-label="관리자"></button>',
+    '<div id="admin-panel" class="admin" hidden>',
+    '  <p class="admin__title">이 아이패드의 종류</p>',
+    '  <div class="admin__row">',
+    '    <button class="admin__btn" data-type="A">A · 01</button>',
+    '    <button class="admin__btn" data-type="B">B · 02</button>',
+    '    <button class="admin__btn" data-type="C">C · 03</button>',
+    '  </div>',
+    '  <p id="admin-info" class="admin__info"></p>',
+    '  <button id="admin-close" class="admin__close" type="button">닫기</button>',
+    '</div>'
+  ].join('\n'));
+
+  var el = {
+    idle:       document.getElementById('screen-idle'),
+    title:      document.getElementById('screen-title'),
+    video:      document.getElementById('screen-video'),
+    btnPlay:    document.getElementById('btn-play'),
+    titleText:  document.getElementById('title-text'),
+    videoEl:    document.getElementById('video'),
+    end:        document.getElementById('end-overlay'),
+    btnRestart: document.getElementById('btn-restart'),
+    missing:    document.getElementById('video-missing'),
+    hotspot:    document.getElementById('admin-hotspot'),
+    admin:      document.getElementById('admin-panel'),
+    adminInfo:  document.getElementById('admin-info'),
+    adminClose: document.getElementById('admin-close')
+  };
+
+  document.documentElement.style.setProperty('--title-fade', TIMING.titleFadeInMs + 'ms');
+  if (DATA.poster) el.videoEl.setAttribute('poster', BASE + DATA.poster);
+  el.videoEl.src = BASE + DATA.video;
+  el.videoEl.load();
+
+  /* =============================================================
+     3. 화면 맞춤 배율
      1180 x 820 무대를 잘리지 않게 화면 안에 맞춥니다.
      남는 여백은 화면 배경색과 같아서 눈에 띄지 않습니다.
      ============================================================= */
   function fit() {
-    var w = window.innerWidth;
-    var h = window.innerHeight;
-    var s = Math.min(w / 1180, h / 820);
+    var s = Math.min(window.innerWidth / 1180, window.innerHeight / 820);
     document.documentElement.style.setProperty('--s', s);
   }
   window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', function () { after(300, fit); });
   fit();
-
-  /* =============================================================
-     3. 초기 렌더
-     ============================================================= */
-  function render() {
-    el.heading.textContent    = DATA.heading;
-    el.number.textContent     = DATA.number;
-    el.btnPlayLbl.textContent = CFG.labels.playButton;
-    el.btnRestartL.textContent= CFG.labels.restartButton;
-
-    el.titleText.innerHTML = DATA.titleLines
-      .map(function (line) { return escapeHtml(line); })
-      .join('<br>');
-
-    document.documentElement.style.setProperty(
-      '--title-fade', TIMING.titleFadeInMs + 'ms'
-    );
-
-    if (DATA.poster) el.videoEl.setAttribute('poster', DATA.poster);
-    el.videoEl.src = DATA.video;
-    el.videoEl.load();
-
-    el.missing.querySelector('.missing__path').textContent = DATA.video;
-    document.title = '소리소문 생존 ' + DATA.number.replace(/-/g, '');
-  }
-
-  function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, function (c) {
-      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
-    });
-  }
 
   /* =============================================================
      4. 화면 전환
@@ -117,23 +146,16 @@
     el.video.classList.toggle('is-active', name === 'video');
   }
 
-  /* ---------- IDLE 로 복귀 ---------- */
   function goIdle() {
     clearTimers();
     el.end.classList.remove('is-active');
     el.titleText.classList.remove('is-in');
     el.missing.hidden = true;
-
-    try {
-      el.videoEl.pause();
-      el.videoEl.currentTime = 0;
-    } catch (e) {}
-
+    try { el.videoEl.pause(); el.videoEl.currentTime = 0; } catch (e) {}
     show('idle');
     releaseWakeLock();
   }
 
-  /* ---------- '영상 보기' → TITLE → VIDEO ---------- */
   function start() {
     if (state !== 'idle') return;
     clearTimers();
@@ -151,7 +173,6 @@
     after(SETTLE + TIMING.titleFadeInMs + TIMING.titleHoldMs, playVideo);
   }
 
-  /* ---------- 영상 재생 ---------- */
   function playVideo() {
     show('video');
     el.missing.hidden = true;
@@ -164,11 +185,11 @@
     var p = el.videoEl.play();
     if (p && p.catch) {
       p.catch(function () {
-        // 브라우저가 소리 있는 자동재생을 막은 경우: 음소거로 시작 후 바로 해제
+        // 소리 있는 재생이 막힌 경우: 음소거로 시작한 뒤 바로 해제
         el.videoEl.muted = true;
         el.videoEl.play().then(function () {
           after(60, function () { el.videoEl.muted = false; });
-        }).catch(function () { showMissing(); });
+        }).catch(showMissing);
       });
     }
   }
@@ -178,12 +199,10 @@
     after(4000, goIdle);
   }
 
-  /* ---------- 영상 종료 ---------- */
   el.videoEl.addEventListener('ended', function () {
     el.end.classList.add('is-active');
     after(TIMING.endHoldMs, goIdle);
   });
-
   el.videoEl.addEventListener('error', function () {
     if (state === 'video') showMissing();
   });
@@ -203,7 +222,6 @@
     start();                      // 소제목 화면부터 다시 감상
   });
 
-  // 영상 재생 중 화면 터치 무시
   el.video.addEventListener('click', function (e) {
     if (TIMING.lockDuringVideo && state === 'video' &&
         !el.end.classList.contains('is-active')) {
@@ -237,15 +255,13 @@
       el.videoEl.muted = false;
     }
 
-    // WebAudio 컨텍스트도 함께 깨워 둡니다 (일부 iOS 버전 대응)
     try {
       var AC = window.AudioContext || window.webkitAudioContext;
       if (AC) {
         var ctx = new AC();
         if (ctx.state === 'suspended') ctx.resume();
-        var b = ctx.createBuffer(1, 1, 22050);
         var src = ctx.createBufferSource();
-        src.buffer = b;
+        src.buffer = ctx.createBuffer(1, 1, 22050);
         src.connect(ctx.destination);
         src.start(0);
       }
@@ -267,9 +283,7 @@
     if (wakeLock) { try { wakeLock.release(); } catch (e) {} wakeLock = null; }
   }
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'visible') {
-      if (state === 'video') requestWakeLock();
-    }
+    if (document.visibilityState === 'visible' && state === 'video') requestWakeLock();
   });
 
   /* =============================================================
@@ -291,45 +305,39 @@
     taps++;
     clearTimeout(tapTimer);
     tapTimer = setTimeout(function () { taps = 0; }, 1200);
-    if (taps >= 5) {
-      taps = 0;
-      openAdmin();
-    }
+    if (taps >= 5) { taps = 0; openAdmin(); }
   });
 
   function openAdmin() {
     el.admin.hidden = false;
-    el.adminInfo.textContent =
-      '현재: ' + TYPE + '  ·  ' + DATA.video + '\n' +
-      '선택하면 새로고침되며, 이 기기에 저장됩니다.';
-    Array.prototype.forEach.call(
-      el.admin.querySelectorAll('.admin__btn'),
-      function (b) { b.classList.toggle('is-on', b.dataset.type === TYPE); }
-    );
+    el.adminInfo.textContent = FIXED
+      ? '현재: ' + TYPE + '  ·  이 주소는 ' + TYPE + ' 전용입니다.\n다른 종류는 해당 주소로 접속하세요.'
+      : '현재: ' + TYPE + '\n선택하면 새로고침되며 이 기기에 저장됩니다.';
+    Array.prototype.forEach.call(el.admin.querySelectorAll('.admin__btn'), function (b) {
+      b.classList.toggle('is-on', b.dataset.type === TYPE);
+      b.disabled = !!FIXED;
+      b.style.opacity = FIXED ? 0.35 : 1;
+    });
   }
 
-  Array.prototype.forEach.call(
-    el.admin.querySelectorAll('.admin__btn'),
-    function (b) {
-      b.addEventListener('click', function () {
-        try { localStorage.setItem(STORE_KEY, b.dataset.type); } catch (e) {}
-        location.href = location.pathname + '?type=' + b.dataset.type;
-      });
-    }
-  );
+  Array.prototype.forEach.call(el.admin.querySelectorAll('.admin__btn'), function (b) {
+    b.addEventListener('click', function () {
+      if (FIXED) return;
+      try { localStorage.setItem(STORE_KEY, b.dataset.type); } catch (e) {}
+      location.href = location.pathname + '?type=' + b.dataset.type;
+    });
+  });
 
   el.adminClose.addEventListener('click', function () { el.admin.hidden = true; });
 
   /* =============================================================
-     10. 서비스워커 등록 (오프라인 대비 + 빠른 로딩)
+     10. 서비스워커 등록 (빠른 로딩 + 접속 끊김 대비)
      ============================================================= */
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      navigator.serviceWorker.register(BASE + 'sw.js').catch(function () {});
     });
   }
 
-  /* ---------- 시작 ---------- */
-  render();
   goIdle();
 })();

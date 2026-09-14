@@ -6,16 +6,18 @@
    - 코드를 고쳐서 다시 배포할 때는 아래 VERSION 숫자를 올려 주세요.
    ============================================================= */
 
-var VERSION = 'soriso-v2';
+var VERSION = 'soriso-v3';
 
 /* 미리 저장해 둘 파일 목록 (영상은 용량이 커서 제외) */
 var SHELL = [
   './',
   './index.html',
+  './a/', './a/index.html', './a/manifest.webmanifest',
+  './b/', './b/index.html', './b/manifest.webmanifest',
+  './c/', './c/index.html', './c/manifest.webmanifest',
   './app.css',
   './app.js',
   './config.js',
-  './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
   './assets/poster/A.png',
