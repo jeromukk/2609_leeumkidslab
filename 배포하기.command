@@ -10,13 +10,13 @@
 set +m                 # 백그라운드 작업 종료 알림("Terminated") 숨기기
 cd "$(dirname "$0")" || exit 1
 
-PROJECT="2609-leeumkidslab"
+PROJECT="leeum-soriso"
 
 # Cloudflare Pages 는 "운영 브랜치" 로 올려야 기본 주소에 반영됩니다.
 # 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 미리보기 주소에만 올라갑니다.
 # 이 프로젝트의 운영 브랜치 이름입니다 (대시보드에서 확인한 값).
 # 비워 두면 현재 운영 중인 배포에서 자동으로 찾아냅니다.
-BRANCH="2609-leeumkidslab"
+BRANCH="main"
 
 START=$(date +%s)
 LOG="$(pwd)/_배포로그.txt"
@@ -102,6 +102,14 @@ echo "처음 배포라면 브라우저가 열리며 Cloudflare 로그인을 묻�
 echo "아래 진행 표시가 30초 이상 멈춰 있으면 Ctrl+C 후 다시 실행하세요."
 echo "(이미 올라간 파일은 건너뛰므로 재시도가 빠릅니다)"
 echo
+
+# 프로젝트가 없으면 운영 브랜치를 지정해서 직접 만듭니다.
+# 이렇게 만들면 앞으로 항상 기본 주소로 바로 배포됩니다.
+if ! $WRANGLER pages project list 2>/dev/null | grep -q "[[:space:]]$PROJECT[[:space:]]"; then
+  echo "프로젝트 '$PROJECT' 를 새로 만듭니다 (운영 브랜치: $BRANCH)"
+  $WRANGLER pages project create "$PROJECT" --production-branch="$BRANCH" 2>&1 | tail -4
+  echo
+fi
 
 # 지금 운영 중인 배포가 어느 브랜치인지 알아냅니다
 if [ -z "$BRANCH" ]; then
