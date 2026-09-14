@@ -16,7 +16,7 @@ PROJECT="2609-leeumkidslab"
 # 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 미리보기 주소에만 올라갑니다.
 # 이 프로젝트의 운영 브랜치 이름입니다 (대시보드에서 확인한 값).
 # 비워 두면 현재 운영 중인 배포에서 자동으로 찾아냅니다.
-BRANCH="2609_leeumkidslab"
+BRANCH="2609-leeumkidslab"
 
 START=$(date +%s)
 LOG="$(pwd)/_배포로그.txt"
