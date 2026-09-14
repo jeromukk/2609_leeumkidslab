@@ -42,6 +42,17 @@ done
 rm -f "$STAGE"/assets/*/README.txt
 find "$STAGE" -name '.DS_Store' -delete
 
+# 서비스워커 버전을 배포 시각으로 자동 교체합니다.
+# 이 값이 바뀌어야 아이패드가 예전에 저장해 둔 파일을 버리고 새로 받습니다.
+# (원본 sw.js 는 건드리지 않고, 올라가는 복사본만 바꿉니다)
+STAMP="soriso-$(date +%y%m%d-%H%M)"
+if [ -f "$STAGE/sw.js" ]; then
+  sed -i '' "s/^var VERSION = .*/var VERSION = '$STAMP';/" "$STAGE/sw.js" 2>/dev/null \
+    || sed -i "s/^var VERSION = .*/var VERSION = '$STAMP';/" "$STAGE/sw.js"
+  echo "서비스워커 버전: $STAMP"
+  echo
+fi
+
 COUNT=$(find "$STAGE" -type f | wc -l | tr -d ' ')
 SIZE=$(du -sh "$STAGE" | cut -f1 | tr -d ' ')
 echo "파일 $COUNT 개 · 합계 $SIZE"
@@ -176,7 +187,7 @@ else
   echo "1~2분 뒤 브라우저에서 직접 열어 보세요: $BASE/"
 fi
 echo
-echo "※ 코드를 고쳤다면 sw.js 의 VERSION 값을 올린 뒤 배포하세요."
+echo "※ 배포할 때마다 아이패드가 새 파일을 받도록 자동 처리됩니다."
 line
 echo "기록: $LOG"
 
