@@ -13,8 +13,10 @@ cd "$(dirname "$0")" || exit 1
 PROJECT="2609-leeumkidslab"
 
 # Cloudflare Pages 는 "운영 브랜치" 로 올려야 기본 주소에 반영됩니다.
-# 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 같은 미리보기 주소에만 올라갑니다.
-BRANCH="production"
+# 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 미리보기 주소에만 올라갑니다.
+# 이 프로젝트의 운영 브랜치 이름입니다 (대시보드에서 확인한 값).
+# 비워 두면 현재 운영 중인 배포에서 자동으로 찾아냅니다.
+BRANCH="2609_leeumkidslab"
 
 START=$(date +%s)
 LOG="$(pwd)/_배포로그.txt"
@@ -125,6 +127,23 @@ echo "아래 진행 표시가 30초 이상 멈춰 있으면 Ctrl+C 후 다시 �
 echo "(이미 올라간 파일은 건너뛰므로 재시도가 빠릅니다)"
 echo
 
+# 지금 운영 중인 배포가 어느 브랜치인지 알아냅니다
+if [ -z "$BRANCH" ]; then
+  echo "운영 브랜치를 확인하는 중..."
+  DEPLOYS=$($WRANGLER pages deployment list --project-name="$PROJECT" 2>/dev/null)
+  echo "$DEPLOYS" > "$(pwd)/_배포목록.txt"
+  BRANCH=$(echo "$DEPLOYS" | grep -i "production" | head -1 \
+           | sed 's/│/|/g' | awk -F'|' '{for(i=1;i<=NF;i++){gsub(/^ +| +$/,"",$i)}; print $3}')
+  # 표 형식이 다를 수 있으니 못 찾으면 흔한 이름들을 순서대로 시도합니다
+  if [ -z "$BRANCH" ]; then
+    BRANCH=$(echo "$DEPLOYS" | grep -iE "production" | head -1 | grep -oE "[A-Za-z0-9._/-]+" | sed -n '3p')
+  fi
+  [ -z "$BRANCH" ] && BRANCH="main"
+  echo "운영 브랜치: $BRANCH"
+  echo "(전체 목록은 _배포목록.txt 에 저장했습니다)"
+  echo
+fi
+
 # 10초마다 경과 시간을 찍어서 멈춘 건지 진행 중인지 보이게 합니다
 ( while true; do sleep 10; echo "      … $(secs)"; done ) &
 HEARTBEAT=$!
@@ -177,9 +196,15 @@ if [ "$LIVE" != "$STAMP" ]; then
   echo "     기본 주소 : ${LIVE:-확인 실패}"
   echo
   echo "     이번 배포는 미리보기 주소로만 올라갔습니다."
-  echo "     Cloudflare 대시보드에서 프로젝트의 '운영 브랜치' 이름을 확인한 뒤"
-  echo "     이 파일 위쪽의  BRANCH=\"$BRANCH\"  를 그 이름으로 바꿔 주세요."
-  echo "     (Workers & Pages > $PROJECT > Settings > Build > Production branch)"
+  echo "     이번에 올린 브랜치: $BRANCH"
+  echo
+  echo "     같은 폴더의 _배포목록.txt 를 열어 Production 줄의 브랜치 이름을 확인한 뒤,"
+  echo "     이 파일 위쪽의  BRANCH=\"\"  안에 그 이름을 적어 주세요."
+  echo "     대시보드에서도 볼 수 있습니다:"
+  echo "     Workers & Pages > $PROJECT > Settings > Build > Production branch"
+  echo
+  echo "     지금 당장 확인하려면 미리보기 주소로 여세요:"
+  echo "     https://$BRANCH.$PROJECT.pages.dev/c/"
 else
   for p in /a/ /b/ /c/; do
     CODE=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$BASE$p")
