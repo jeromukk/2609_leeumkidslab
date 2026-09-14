@@ -79,43 +79,19 @@ fi
 # ── 2. 배포 도구 준비 ────────────────────────────────────────
 step 2 "배포 도구(wrangler) 준비"
 
-# 실제로 실행되는지까지 확인합니다. 설치가 깨져 있으면 다시 깝니다.
+# 실제로 실행되는지까지 확인합니다.
 runs() { $1 --version >/dev/null 2>&1; }
-
-WRANGLER=""
 
 if command -v wrangler >/dev/null 2>&1 && runs wrangler; then
   WRANGLER="wrangler"
-  echo "이미 설치되어 있습니다 ($(wrangler --version 2>/dev/null | head -1))"
-
+  echo "설치된 wrangler 사용 ($(wrangler --version 2>/dev/null | head -1))"
 elif runs "./node_modules/.bin/wrangler"; then
   WRANGLER="./node_modules/.bin/wrangler"
-  echo "이 폴더에 설치되어 있습니다"
-
+  echo "이 폴더의 wrangler 사용"
 else
-  echo "처음 한 번만 설치합니다. 1~2분 걸립니다."
-  echo "(다음 배포부터는 이 단계가 없습니다)"
-  echo
-  rm -rf node_modules package-lock.json 2>/dev/null
-  npm install --no-fund --no-audit wrangler
-  echo
-
-  if runs "./node_modules/.bin/wrangler"; then
-    WRANGLER="./node_modules/.bin/wrangler"
-    echo "설치 완료"
-  else
-    echo "폴더에 설치가 되지 않아 다른 방법으로 진행합니다."
-    echo "(매번 내려받아서 조금 느립니다. 계속 이러면 알려주세요)"
-    WRANGLER="npx --yes wrangler@4"
-  fi
-fi
-
-if [ -z "$WRANGLER" ]; then
-  echo "배포 도구를 준비하지 못했습니다."
-  echo "터미널에서 아래를 실행한 뒤 다시 시도해 주세요."
-  echo "  npm install -g wrangler"
-  read -r -p "엔터로 종료" _
-  exit 1
+  WRANGLER="npx --yes wrangler@4"
+  echo "npx 로 실행합니다."
+  echo "터미널에서 한 번  npm install -g wrangler  를 해두시면 훨씬 빨라집니다."
 fi
 
 echo "→ $(secs)"
