@@ -10,7 +10,7 @@
 set +m                 # 백그라운드 작업 종료 알림("Terminated") 숨기기
 cd "$(dirname "$0")" || exit 1
 
-PROJECT="leeum-soriso"
+PROJECT="2609-leeumkidslab"
 
 # Cloudflare Pages 는 "운영 브랜치" 로 올려야 기본 주소에 반영됩니다.
 # 다른 이름으로 올리면 <이름>.프로젝트.pages.dev 미리보기 주소에만 올라갑니다.
