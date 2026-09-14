@@ -103,35 +103,13 @@ echo "아래 진행 표시가 30초 이상 멈춰 있으면 Ctrl+C 후 다시 �
 echo "(이미 올라간 파일은 건너뛰므로 재시도가 빠릅니다)"
 echo
 
-# 프로젝트가 이미 있으면 그 프로젝트의 운영 브랜치를 그대로 따라갑니다.
-# (대시보드에서 zip 으로 먼저 만든 경우 브랜치 이름이 프로젝트 이름으로 잡힙니다)
-# 없으면 운영 브랜치를 main 으로 지정해 직접 만듭니다.
-if $WRANGLER pages project list 2>/dev/null | grep -q "[[:space:]]$PROJECT[[:space:]]"; then
-  echo "기존 프로젝트를 찾았습니다. 운영 브랜치를 확인합니다..."
-  DEPLOYS=$($WRANGLER pages deployment list --project-name="$PROJECT" 2>/dev/null)
-  echo "$DEPLOYS" > "$(pwd)/_배포목록.txt"
-  FOUND=$(echo "$DEPLOYS" | awk -F'│' '
-    { for (i=1;i<=NF;i++) gsub(/^[ \t]+|[ \t]+$/,"",$i)
-      for (i=1;i<=NF;i++) if ($i=="Production") { print $(i+1); exit } }')
-  if [ -n "$FOUND" ]; then
-    BRANCH="$FOUND"
-    echo "운영 브랜치: $BRANCH"
-    case "$BRANCH" in
-      *_*)
-        echo
-        echo "⚠︎ 브랜치 이름에 밑줄(_)이 들어 있어 배포가 만들어지지 않습니다."
-        echo "  이 프로젝트는 대시보드에서 지우고, 하이픈만 쓴 이름으로 다시 만들어야 합니다."
-        read -r -p "엔터로 종료" _
-        exit 1
-        ;;
-    esac
-  else
-    echo "운영 브랜치를 찾지 못해 $BRANCH 로 진행합니다."
-  fi
-else
-  echo "프로젝트 '$PROJECT' 를 새로 만듭니다 (운영 브랜치: $BRANCH)"
-  $WRANGLER pages project create "$PROJECT" --production-branch="$BRANCH" 2>&1 | tail -4
-fi
+# 프로젝트를 먼저 확실히 만들어 둡니다.
+# 없는 프로젝트로 바로 배포하면 wrangler 가 "만들까요?" 하고 되묻는데,
+# 화면 출력을 파일로 받는 중이라 그 질문을 할 수 없어 아무 일도 없이 끝나 버립니다.
+# 이미 있으면 "이미 존재한다"는 메시지만 나오고 넘어갑니다.
+echo "프로젝트 확인/생성 (운영 브랜치: $BRANCH)"
+$WRANGLER pages project create "$PROJECT" --production-branch="$BRANCH" 2>&1 \
+  | grep -v "^$" | tail -4
 echo
 
 # 10초마다 경과 시간을 찍어서 멈춘 건지 진행 중인지 보이게 합니다
@@ -188,10 +166,7 @@ if [ "$LIVE" != "$STAMP" ]; then
   echo "     이번 배포는 미리보기 주소로만 올라갔습니다."
   echo "     이번에 올린 브랜치: $BRANCH"
   echo
-  echo "     같은 폴더의 _배포목록.txt 를 열어 Production 줄의 브랜치 이름을 확인한 뒤,"
-  echo "     이 파일 위쪽의  BRANCH=\"\"  안에 그 이름을 적어 주세요."
-  echo "     대시보드에서도 볼 수 있습니다:"
-  echo "     Workers & Pages > $PROJECT > Settings > Build > Production branch"
+  echo "     전체 기록: $LOG"
   echo
   echo "     지금 당장 확인하려면 미리보기 주소로 여세요:"
   echo "     https://$BRANCH.$PROJECT.pages.dev/c/"
