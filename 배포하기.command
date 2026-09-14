@@ -2,18 +2,27 @@
 # ─────────────────────────────────────────────────────────────
 #  더블클릭 한 번으로 Cloudflare Pages 에 배포합니다.
 #
-#  처음 실행할 때만 브라우저가 열리면서 Cloudflare 로그인을 물어봅니다.
-#  (토큰을 복사해 붙일 필요 없습니다. 로그인만 하면 됩니다)
-#  그 뒤로는 이 파일을 더블클릭하기만 하면 바로 배포됩니다.
+#  처음 실행할 때만
+#   - wrangler(배포 도구) 를 설치하고
+#   - 브라우저가 열리며 Cloudflare 로그인을 물어봅니다
+#  그 뒤로는 더블클릭만 하면 바로 올라갑니다.
 # ─────────────────────────────────────────────────────────────
 cd "$(dirname "$0")" || exit 1
 
 PROJECT="2609-leeumkidslab"
+START=$(date +%s)
 
+line() { printf '─%.0s' $(seq 1 52); echo; }
+step() { echo; line; echo "[$1/4] $2"; line; }
+secs() { echo "$(( $(date +%s) - START ))초 경과"; }
+
+clear
 echo "소리소문 생존 → Cloudflare Pages 배포"
 echo "프로젝트: $PROJECT"
-echo "─────────────────────────────────────────────"
-echo
+echo "시작: $(date '+%H:%M:%S')"
+
+# ── 1. 올릴 파일 모으기 ───────────────────────────────────────
+step 1 "올릴 파일 모으는 중"
 
 if ! command -v node >/dev/null 2>&1; then
   echo "Node.js 가 필요합니다."
@@ -22,7 +31,6 @@ if ! command -v node >/dev/null 2>&1; then
   exit 1
 fi
 
-# 배포에 필요한 파일만 임시 폴더에 모읍니다 (문서·스크립트·git 기록 제외)
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
@@ -32,55 +40,108 @@ done
 rm -f "$STAGE"/assets/*/README.txt
 find "$STAGE" -name '.DS_Store' -delete
 
-echo "올릴 파일"
-(cd "$STAGE" && find . -type f | sed 's#^\./#  #' | sort)
+COUNT=$(find "$STAGE" -type f | wc -l | tr -d ' ')
+SIZE=$(du -sh "$STAGE" | cut -f1 | tr -d ' ')
+echo "파일 $COUNT 개 · 합계 $SIZE"
 echo
+find "$STAGE" -type f -exec ls -lh {} \; | awk '{printf "  %6s  %s\n", $5, $9}' | sed "s#$STAGE/##" | sort -k2
 
-# 25MB 넘는 파일이 있으면 미리 잡아 줍니다
 BIG=$(find "$STAGE" -type f -size +25M)
 if [ -n "$BIG" ]; then
+  echo
   echo "⚠︎ 25MB 를 넘는 파일이 있어 Cloudflare 가 거부합니다."
-  echo "$BIG" | sed 's#.*/#  #'
+  echo "$BIG" | sed "s#$STAGE/#  #"
   echo "  영상을 평균 5~6Mbps 로 다시 내보내 주세요."
   read -r -p "엔터로 종료" _
   exit 1
 fi
 
-echo "배포 중..."
-echo
+# ── 2. 배포 도구 준비 ────────────────────────────────────────
+step 2 "배포 도구(wrangler) 준비"
 
-# wrangler 를 어디서 실행할지 정합니다.
-# 한 번 설치해 두면 매번 내려받지 않아 훨씬 빠릅니다.
 if command -v wrangler >/dev/null 2>&1; then
   WRANGLER="wrangler"
+  echo "이미 설치되어 있습니다 ($(wrangler --version 2>/dev/null | head -1))"
 elif [ -x "./node_modules/.bin/wrangler" ]; then
   WRANGLER="./node_modules/.bin/wrangler"
+  echo "이 폴더에 설치되어 있습니다"
 else
-  echo "wrangler 를 처음 한 번 설치합니다 (1~2분, 다음부터는 생략됩니다)..."
+  echo "처음 한 번만 설치합니다. 1~2분 걸립니다."
+  echo "(다음 배포부터는 이 단계가 없습니다)"
   echo
-  npm install --no-fund --no-audit --silent wrangler || {
+  npm install --no-fund --no-audit wrangler || {
     echo "설치 실패. 인터넷 연결을 확인해 주세요."
     read -r -p "엔터로 종료" _
     exit 1
   }
   WRANGLER="./node_modules/.bin/wrangler"
-  echo
 fi
+echo "→ $(secs)"
+
+# ── 3. 업로드 ────────────────────────────────────────────────
+step 3 "업로드 중"
+echo "처음 배포라면 브라우저가 열리며 Cloudflare 로그인을 묻습니다."
+echo "아래 진행 표시가 30초 이상 멈춰 있으면 Ctrl+C 후 다시 실행하세요."
+echo "(이미 올라간 파일은 건너뛰므로 재시도가 빠릅니다)"
+echo
+
+# 10초마다 경과 시간을 찍어서 멈춘 건지 진행 중인지 보이게 합니다
+( while true; do sleep 10; echo "      … $(secs)"; done ) &
+HEARTBEAT=$!
+trap 'kill $HEARTBEAT 2>/dev/null; rm -rf "$STAGE"' EXIT
 
 "$WRANGLER" pages deploy "$STAGE" \
   --project-name="$PROJECT" \
   --branch=main \
-  --commit-dirty=true
+  --commit-dirty=true 2>&1 | tee "$STAGE.log"
+
+RESULT=${PIPESTATUS[0]}
+kill $HEARTBEAT 2>/dev/null
+
+# ── 4. 확인 ──────────────────────────────────────────────────
+step 4 "확인"
+
+if [ "$RESULT" -ne 0 ]; then
+  echo "배포에 실패했습니다. 위 메시지를 확인해 주세요."
+  echo "총 $(secs)"
+  rm -f "$STAGE.log"
+  read -r -p "엔터로 종료" _
+  exit 1
+fi
+
+BASE="https://$PROJECT.pages.dev"
+echo "세 주소가 실제로 열리는지 확인합니다..."
+echo
+OK=1
+for p in /a/ /b/ /c/; do
+  CODE=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$BASE$p")
+  if [ "$CODE" = "200" ]; then
+    printf "  ✓  %s%s\n" "$BASE" "$p"
+  else
+    printf "  ✗  %s%s   (응답 %s)\n" "$BASE" "$p" "$CODE"
+    OK=0
+  fi
+done
 
 echo
-echo "─────────────────────────────────────────────"
-echo "배포가 끝나면 위에 주소가 나옵니다."
+line
+if [ "$OK" = "1" ]; then
+  echo "배포 완료 · 총 $(secs)"
+  echo
+  echo "아이패드에서 열 주소"
+  echo "  $BASE/a/     01"
+  echo "  $BASE/b/     02"
+  echo "  $BASE/c/     03"
+  echo
+  echo "설치 안내 화면: $BASE/"
+else
+  echo "업로드는 끝났지만 주소가 아직 응답하지 않습니다."
+  echo "1~2분 뒤 브라우저에서 직접 열어 보세요: $BASE/"
+fi
 echo
-echo "아이패드에서 열 주소"
-echo "  https://$PROJECT.pages.dev/a/     01"
-echo "  https://$PROJECT.pages.dev/b/     02"
-echo "  https://$PROJECT.pages.dev/c/     03"
-echo
-echo "※ 코드를 고쳤다면 sw.js 의 VERSION 값을 v4, v5 로 올린 뒤 배포하세요."
-echo "─────────────────────────────────────────────"
-read -r -p "엔터를 누르면 창이 닫힙니다." _
+echo "※ 코드를 고쳤다면 sw.js 의 VERSION 값을 올린 뒤 배포하세요."
+line
+rm -f "$STAGE.log"
+
+read -r -p "엔터를 누르면 창이 닫힙니다. (브라우저로 열려면 o + 엔터) " ANS
+[ "$ANS" = "o" ] && open "$BASE/"
