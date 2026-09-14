@@ -7,10 +7,12 @@
 #   - 브라우저가 열리며 Cloudflare 로그인을 물어봅니다
 #  그 뒤로는 더블클릭만 하면 바로 올라갑니다.
 # ─────────────────────────────────────────────────────────────
+set +m                 # 백그라운드 작업 종료 알림("Terminated") 숨기기
 cd "$(dirname "$0")" || exit 1
 
 PROJECT="2609-leeumkidslab"
 START=$(date +%s)
+LOG="$(pwd)/_배포로그.txt"
 
 line() { printf '─%.0s' $(seq 1 52); echo; }
 step() { echo; line; echo "[$1/4] $2"; line; }
@@ -93,18 +95,31 @@ trap 'kill $HEARTBEAT 2>/dev/null; rm -rf "$STAGE"' EXIT
 "$WRANGLER" pages deploy "$STAGE" \
   --project-name="$PROJECT" \
   --branch=main \
-  --commit-dirty=true 2>&1 | tee "$STAGE.log"
+  --commit-dirty=true 2>&1 | tee "$LOG"
 
 RESULT=${PIPESTATUS[0]}
 kill $HEARTBEAT 2>/dev/null
+wait $HEARTBEAT 2>/dev/null
 
 # ── 4. 확인 ──────────────────────────────────────────────────
 step 4 "확인"
 
 if [ "$RESULT" -ne 0 ]; then
-  echo "배포에 실패했습니다. 위 메시지를 확인해 주세요."
-  echo "총 $(secs)"
-  rm -f "$STAGE.log"
+  echo "배포에 실패했습니다 · 총 $(secs)"
+  echo
+  echo "실패 원인 (마지막 25줄)"
+  line
+  tail -25 "$LOG"
+  line
+  echo
+  echo "전체 기록이 아래 파일에 저장되었습니다."
+  echo "  $LOG"
+  echo "이 파일 내용을 그대로 알려주시면 원인을 짚어드릴 수 있습니다."
+  echo
+  echo "자주 있는 원인"
+  echo "  · Cloudflare 로그인이 안 되어 있음  →  터미널에서  npx wrangler login"
+  echo "  · 프로젝트가 아직 없음             →  대시보드에서 $PROJECT 생성"
+  echo "  · 25MB 초과 파일                   →  위 [1/4] 목록에서 용량 확인"
   read -r -p "엔터로 종료" _
   exit 1
 fi
@@ -141,7 +156,7 @@ fi
 echo
 echo "※ 코드를 고쳤다면 sw.js 의 VERSION 값을 올린 뒤 배포하세요."
 line
-rm -f "$STAGE.log"
+echo "기록: $LOG"
 
 read -r -p "엔터를 누르면 창이 닫힙니다. (브라우저로 열려면 o + 엔터) " ANS
 [ "$ANS" = "o" ] && open "$BASE/"

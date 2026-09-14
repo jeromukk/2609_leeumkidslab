@@ -4,3 +4,4 @@ node_modules/
 *.log
 package.json
 package-lock.json
+_배포로그.txt
