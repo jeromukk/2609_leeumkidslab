@@ -27,7 +27,11 @@ window.SORISO_CONFIG = {
     lockDuringVideo: true
   },
 
-  /* ---------- 3종 콘텐츠 ---------- */
+  /* ---------- 3종 콘텐츠 ----------
+     각 종류에 아래 항목을 더 넣을 수 있습니다.
+       skipTitle: true    영상에 제목이 이미 있을 때, 앱의 제목 화면을 건너뜁니다
+       fit: 'contain'     영상이 잘리지 않게 전체를 보여줍니다 (기본값은 'cover')
+  */
   // key(A/B/C)는 URL의 ?type= 값과 같습니다.
   types: {
     A: {
@@ -58,7 +62,17 @@ window.SORISO_CONFIG = {
         '새소리'
       ],
       video: 'assets/video/C.mp4',
-      poster: 'assets/poster/C.png'
+      poster: 'assets/poster/C.png',
+
+      // 이 영상은 앞부분에 제목 화면이 이미 들어 있습니다.
+      // 앱이 제목을 한 번 더 띄우면 같은 문구가 두 번 나오므로,
+      // '영상 보기'를 누르면 바로 영상이 시작되도록 합니다.
+      skipTitle: true,
+
+      // 영상 비율이 화면(1180x820)과 달라 잘림이 생깁니다.
+      // 'contain' - 잘리지 않게 전체를 보여줍니다 (위아래에 검은 여백)
+      // 'cover'   - 화면을 꽉 채웁니다 (좌우가 잘림)
+      fit: 'contain'
     }
   },
 

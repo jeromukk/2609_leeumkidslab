@@ -119,6 +119,10 @@
   };
 
   document.documentElement.style.setProperty('--title-fade', TIMING.titleFadeInMs + 'ms');
+
+  // 영상 맞춤 방식 - contain 이면 잘리지 않게 전체를 보여줍니다
+  if (DATA.fit === 'contain') el.video.classList.add('screen--video-contain');
+
   if (DATA.poster) el.videoEl.setAttribute('poster', BASE + DATA.poster);
   el.videoEl.src = BASE + DATA.video;
   el.videoEl.load();
@@ -162,6 +166,12 @@
 
     unlockAudio();      // iOS 사운드 재생 권한 확보 (반드시 탭 안에서)
     requestWakeLock();
+
+    // 영상에 제목이 이미 들어 있으면 앱의 제목 화면을 건너뜁니다
+    if (DATA.skipTitle) {
+      playVideo();
+      return;
+    }
 
     show('title');
 
@@ -212,14 +222,10 @@
      ============================================================= */
   el.btnPlay.addEventListener('click', start);
 
+  // '처음으로' → 각 페이지의 시작 화면(영상 보기 버튼이 있는 화면)으로
   el.btnRestart.addEventListener('click', function (e) {
     e.stopPropagation();
-    clearTimers();
-    el.end.classList.remove('is-active');
-    el.titleText.classList.remove('is-in');
-    try { el.videoEl.pause(); el.videoEl.currentTime = 0; } catch (err) {}
-    state = 'idle';
-    start();                      // 소제목 화면부터 다시 감상
+    goIdle();
   });
 
   el.video.addEventListener('click', function (e) {
