@@ -130,7 +130,7 @@ body { position: fixed; inset: 0; }
   font-size: 36px;
   letter-spacing: -0.04em;
   line-height: 1;
-  padding-bottom: 4px;               /* 한글 시각 중심 보정 */
+  padding-top: 5px;                  /* 글자가 알약 정중앙에 오도록 보정 */
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
