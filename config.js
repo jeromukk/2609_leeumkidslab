@@ -42,7 +42,8 @@ window.SORISO_CONFIG = {
         '사라짐의 소리'
       ],
       video: 'assets/video/A.mp4',
-      poster: 'assets/poster/A.png'
+      poster: 'assets/poster/A.png',
+      skipTitle: true
     },
     B: {
       number: '-02-',
@@ -52,7 +53,8 @@ window.SORISO_CONFIG = {
         '다가오는 건 사냥꾼'
       ],
       video: 'assets/video/B.mp4',
-      poster: 'assets/poster/B.png'
+      poster: 'assets/poster/B.png',
+      skipTitle: true
     },
     C: {
       number: '-03-',
@@ -63,16 +65,7 @@ window.SORISO_CONFIG = {
       ],
       video: 'assets/video/C.mp4',
       poster: 'assets/poster/C.png',
-
-      // 이 영상은 앞부분에 제목 화면이 이미 들어 있습니다.
-      // 앱이 제목을 한 번 더 띄우면 같은 문구가 두 번 나오므로,
-      // '영상 보기'를 누르면 바로 영상이 시작되도록 합니다.
-      skipTitle: true,
-
-      // 영상 비율이 화면(1180x820)과 달라 잘림이 생깁니다.
-      // 'contain' - 잘리지 않게 전체를 보여줍니다 (위아래에 검은 여백)
-      // 'cover'   - 화면을 꽉 채웁니다 (좌우가 잘림)
-      fit: 'contain'
+      skipTitle: true
     }
   },
 
