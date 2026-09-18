@@ -7,7 +7,7 @@
      배포 스크립트가 올릴 때 자동으로 배포 시각을 넣으므로 직접 고치지 않아도 됩니다.
    ============================================================= */
 
-var VERSION = 'soriso-v4';
+var VERSION = 'soriso-v5';
 
 /* 미리 저장해 둘 파일 목록 (영상은 용량이 커서 제외) */
 var SHELL = [
@@ -42,7 +42,8 @@ self.addEventListener('activate', function (e) {
   e.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(keys.map(function (k) {
-        if (k !== VERSION) return caches.delete(k);
+        // 'soriso-video' 는 app.js 가 받아 둔 영상 - 버전이 바뀌어도 지우지 않음
+        if (k !== VERSION && k !== 'soriso-video') return caches.delete(k);
       }));
     }).then(function () { return self.clients.claim(); })
   );

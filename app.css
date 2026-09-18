@@ -144,6 +144,7 @@ body { position: fixed; inset: 0; }
   transition: transform 120ms ease;
 }
 .screen--idle .pill:active { transform: translate(-50%, -50%) scale(0.95); }
+.screen--idle .pill.is-loading { opacity: 0.4; }
 
 /* =============================================================
    TITLE

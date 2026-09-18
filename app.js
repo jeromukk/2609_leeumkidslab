@@ -124,8 +124,88 @@
   if (DATA.fit === 'contain') el.video.classList.add('screen--video-contain');
 
   if (DATA.poster) el.videoEl.setAttribute('poster', BASE + DATA.poster);
-  el.videoEl.src = BASE + DATA.video;
-  el.videoEl.load();
+
+  /* =============================================================
+     2-1. 영상 통째로 받아 두기
+     영상을 스트리밍하지 않고 파일 전체를 먼저 받아 기기에 저장한 뒤
+     그 사본으로 재생합니다.
+     - 서버가 구간 요청을 지원하지 않아도 끝까지 재생됩니다
+     - 한 번 받으면 기기에 남으므로 와이파이가 끊겨도 재생됩니다
+     - 받는 데 실패하면 몇 초 뒤 자동으로 다시 시도합니다
+     - 새 영상이 배포되면(ETag 변경) 뒤에서 새로 받아 교체합니다
+     ============================================================= */
+  var VIDEO_URL   = new URL(BASE + DATA.video, location.href).href;
+  var VIDEO_CACHE = 'soriso-video';
+  var videoReady  = false;
+  var pendingBlob = null;
+
+  function setLoading(on) {
+    el.btnPlay.disabled = on;
+    el.btnPlay.classList.toggle('is-loading', on);
+    el.btnPlay.textContent = on ? (CFG.labels.loadingButton || '준비 중') : CFG.labels.playButton;
+  }
+
+  function applyBlob(blob) {
+    var old = el.videoEl.src;
+    el.videoEl.src = URL.createObjectURL(blob);
+    el.videoEl.load();
+    if (old && old.indexOf('blob:') === 0) URL.revokeObjectURL(old);
+    videoReady = true;
+    setLoading(false);
+  }
+
+  // 재생 중에는 영상을 바꾸지 않고, IDLE 로 돌아갈 때 교체합니다
+  function useBlob(blob) {
+    if (state === 'idle') applyBlob(blob);
+    else pendingBlob = blob;
+  }
+
+  function download(tries) {
+    return fetch(VIDEO_URL, { cache: 'no-cache' }).then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var etag = res.headers.get('ETag');
+      return res.blob().then(function (blob) {
+        if (window.caches) {
+          var headers = { 'Content-Type': 'video/mp4' };
+          if (etag) headers.ETag = etag;
+          caches.open(VIDEO_CACHE).then(function (c) {
+            return c.put(VIDEO_URL, new Response(blob, { headers: headers }));
+          }).catch(function () {});
+        }
+        return blob;
+      });
+    }).catch(function () {
+      // 2초, 4초, 6초 … 최대 30초 간격으로 계속 재시도
+      tries = (tries || 0) + 1;
+      return new Promise(function (resolve) {
+        setTimeout(resolve, Math.min(30000, 2000 * tries));
+      }).then(function () { return download(tries); });
+    });
+  }
+
+  function loadVideo() {
+    setLoading(true);
+    var cached = window.caches
+      ? caches.open(VIDEO_CACHE)
+          .then(function (c) { return c.match(VIDEO_URL); })
+          .catch(function () { return null; })
+      : Promise.resolve(null);
+
+    cached.then(function (res) {
+      if (!res) return download().then(useBlob);
+
+      var savedTag = res.headers.get('ETag');
+      res.blob().then(useBlob);
+
+      // 저장된 영상으로 먼저 준비한 뒤, 새 영상이 배포됐는지 조용히 확인
+      fetch(VIDEO_URL, { method: 'HEAD', cache: 'no-cache' }).then(function (head) {
+        var tag = head.ok && head.headers.get('ETag');
+        if (tag && tag !== savedTag) download().then(useBlob);
+      }).catch(function () {});
+    });
+  }
+
+  loadVideo();
 
   /* =============================================================
      3. 화면 맞춤 배율
@@ -157,11 +237,12 @@
     el.missing.hidden = true;
     try { el.videoEl.pause(); el.videoEl.currentTime = 0; } catch (e) {}
     show('idle');
+    if (pendingBlob) { applyBlob(pendingBlob); pendingBlob = null; }
     releaseWakeLock();
   }
 
   function start() {
-    if (state !== 'idle') return;
+    if (state !== 'idle' || !videoReady) return;
     clearTimers();
 
     unlockAudio();      // iOS 사운드 재생 권한 확보 (반드시 탭 안에서)

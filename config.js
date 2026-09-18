@@ -77,6 +77,7 @@ window.SORISO_CONFIG = {
   /* ---------- UI 문구 ---------- */
   labels: {
     playButton: '영상 보기',
+    loadingButton: '준비 중',   // 영상을 받는 동안 버튼에 표시
     restartButton: '처음으로'
   }
 };
