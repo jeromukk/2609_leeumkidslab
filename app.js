@@ -330,6 +330,9 @@
       var p = el.videoEl.play();
       if (p && p.then) {
         p.then(function () {
+          // 제목 화면을 건너뛰면 이 시점엔 이미 실제 재생이 시작돼 있습니다.
+          // 여기서 멈추면 영상이 첫 장면에서 멈춰 버리므로(사파리) 건드리지 않습니다.
+          if (state === 'video') return;
           el.videoEl.pause();
           try { el.videoEl.currentTime = 0; } catch (e) {}
           el.videoEl.muted = false;
