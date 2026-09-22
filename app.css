@@ -117,7 +117,7 @@ body { position: fixed; inset: 0; }
 
 /* 회차 표기가 없을 때 : 제목과 버튼을 빈 자리만큼 좁혀서 다시 배치
    (전체 덩어리의 무게중심은 원래 배치와 같게 유지) */
-.screen--idle.is-no-number .idle__heading { top: 387px; }
+.screen--idle.is-no-number .idle__heading { top: 375px; }
 .screen--idle.is-no-number .pill          { top: 627px; }
 
 /* '영상 보기' 버튼 : 235 x 82 / 중심 (590, 680) */
