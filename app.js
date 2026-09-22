@@ -58,11 +58,16 @@
     });
   }
 
+  // 회차 표기(-01-)가 비어 있으면 그 줄을 아예 빼고,
+  // 제목과 버튼을 빈 자리만큼 좁혀서 배치합니다 (app.css 의 .is-no-number)
+  var HAS_NUMBER = !!(DATA.number && String(DATA.number).trim());
+
   document.body.insertAdjacentHTML('afterbegin', [
-    '<section id="screen-idle" class="screen screen--idle is-active">',
+    '<section id="screen-idle" class="screen screen--idle is-active' +
+      (HAS_NUMBER ? '' : ' is-no-number') + '">',
     '  <div class="frame">',
     '    <h1 class="idle__heading">' + esc(DATA.heading) + '</h1>',
-    '    <p class="idle__number">' + esc(DATA.number) + '</p>',
+    HAS_NUMBER ? '    <p class="idle__number">' + esc(DATA.number) + '</p>' : '',
     '    <button id="btn-play" class="pill" type="button">' + esc(CFG.labels.playButton) + '</button>',
     '  </div>',
     '</section>',
