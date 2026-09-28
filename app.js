@@ -13,7 +13,7 @@
 
   var CFG    = window.SORISO_CONFIG;
   var TIMING = CFG.timing;
-  var BASE   = window.SORISO_BASE || '';     // 01/02/03 폴더에서는 '../'
+  var BASE   = window.SORISO_BASE || '';     // a/b/c 폴더에서는 '../'
   var FIXED  = window.SORISO_TYPE || '';     // 폴더에 고정된 종류
   var STORE_KEY = 'soriso.type';
 

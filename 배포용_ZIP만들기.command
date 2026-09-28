@@ -20,7 +20,7 @@ echo
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
-for f in index.html 01 02 03 app.css app.js config.js sw.js _headers assets; do
+for f in index.html a b c app.css app.js config.js sw.js _headers assets; do
   [ -e "$f" ] && cp -R "$f" "$STAGE/"
 done
 rm -f "$STAGE"/assets/*/README.txt
@@ -66,9 +66,9 @@ echo "  2. Workers & Pages > 2609-leeum-kidslab"
 echo "  3. Create deployment (또는 Upload assets)"
 echo "  4. 방금 만든 zip 을 창에 끌어다 놓기"
 echo "  5. 배포가 끝나면 아래 주소로 확인"
-echo "       https://2609-leeum-kidslab.pages.dev/01/     차 소리에 묻히는 새소리"
-echo "       https://2609-leeum-kidslab.pages.dev/02/     풀벌레 소리 대신 들리는 사라짐의 소리"
-echo "       https://2609-leeum-kidslab.pages.dev/03/     짝을 부르는 소리에 다가오는 건 사냥꾼"
+echo "       https://2609-leeum-kidslab.pages.dev/a/     01  차 소리에 묻히는 새소리"
+echo "       https://2609-leeum-kidslab.pages.dev/b/     02  풀벌레 소리 대신 들리는 사라짐의 소리"
+echo "       https://2609-leeum-kidslab.pages.dev/c/     03  짝을 부르는 소리에 다가오는 건 사냥꾼"
 echo
 echo "아이패드에서 앱을 완전히 종료했다가 다시 열어야 새 내용이 보입니다."
 echo "──────────────────────────────────────────────"

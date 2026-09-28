@@ -109,16 +109,16 @@ GitHub은 파일 1개당 100MB, 저장소 전체 1GB를 넘기면 거부합니�
 한 번 배포하면 주소가 세 개 생깁니다.
 
 ```
-https://2609-leeumkidslab.pages.dev/01/     차 소리에 묻히는 새소리
-https://2609-leeumkidslab.pages.dev/02/     풀벌레 소리 대신 들리는 사라짐의 소리
-https://2609-leeumkidslab.pages.dev/03/     짝을 부르는 소리에 다가오는 건 사냥꾼
+https://2609-leeumkidslab.pages.dev/a/     01  차 소리에 묻히는 새소리
+https://2609-leeumkidslab.pages.dev/b/     02  풀벌레 소리 대신 들리는 사라짐의 소리
+https://2609-leeumkidslab.pages.dev/c/     03  짝을 부르는 소리에 다가오는 건 사냥꾼
 ```
 
 `https://2609-leeumkidslab.pages.dev/` 는 세 주소를 고르는 설치 안내 화면입니다.
 
 세 주소를 완전히 다른 도메인으로 나눠야 한다면, 같은 저장소를 Cloudflare Pages에
 프로젝트 세 개로 연결하고 각 프로젝트의 **Build output directory** 를
-`01` / `02` / `03` 으로 지정하면 됩니다. 저장소는 하나 그대로 쓰고 코드도 한 벌만 관리합니다.
+`a` / `b` / `c` 로 지정하면 됩니다. 저장소는 하나 그대로 쓰고 코드도 한 벌만 관리합니다.
 
 ---
 
