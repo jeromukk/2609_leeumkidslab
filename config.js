@@ -35,7 +35,7 @@ window.SORISO_CONFIG = {
   // key(01/02/03)는 URL의 ?type= 값과 같습니다.
   types: {
     '01': {
-      number: '-01-',                     // IDLE 화면의 회차 표기
+      number: '- 1편 -',                     // IDLE 화면의 회차 표기
       heading: '일상 속 사라짐',            // IDLE 화면의 큰 제목 (3종 공통)
       titleLines: [                       // TITLE 화면에서 페이드 인 되는 소제목
         '차 소리에 묻히는',
@@ -46,7 +46,7 @@ window.SORISO_CONFIG = {
       skipTitle: true
     },
     '02': {
-      number: '-02-',
+      number: '- 2편 -',
       heading: '일상 속 사라짐',
       titleLines: [
         '풀벌레 소리 대신 들리는',
@@ -57,7 +57,7 @@ window.SORISO_CONFIG = {
       skipTitle: true
     },
     '03': {
-      number: '-03-',
+      number: '- 3편 -',
       heading: '일상 속 사라짐',
       titleLines: [
         '짝을 부르는 소리에',
