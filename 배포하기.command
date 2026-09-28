@@ -43,7 +43,7 @@ fi
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
-for f in index.html a b c app.css app.js config.js sw.js _headers assets; do
+for f in index.html 01 02 03 app.css app.js config.js sw.js _headers assets; do
   [ -e "$f" ] && cp -R "$f" "$STAGE/"
 done
 rm -f "$STAGE"/assets/*/README.txt
@@ -169,9 +169,9 @@ if [ "$LIVE" != "$STAMP" ]; then
   echo "     전체 기록: $LOG"
   echo
   echo "     지금 당장 확인하려면 미리보기 주소로 여세요:"
-  echo "     https://$BRANCH.$PROJECT.pages.dev/c/"
+  echo "     https://$BRANCH.$PROJECT.pages.dev/01/"
 else
-  for p in /a/ /b/ /c/; do
+  for p in /01/ /02/ /03/; do
     CODE=$(curl -s -o /dev/null -m 20 -w "%{http_code}" "$BASE$p")
     if [ "$CODE" = "200" ]; then
       printf "  ✓  %s%s\n" "$BASE" "$p"
@@ -182,7 +182,7 @@ else
   done
 
   # 영상이 제대로 올라갔는지도 확인
-  VSIZE=$(curl -sI -m 20 "$BASE/assets/video/C.mp4" | tr -d '\r' | sed -n 's/^[Cc]ontent-[Ll]ength: //p' | head -1)
+  VSIZE=$(curl -sI -m 20 "$BASE/assets/video/01.mp4" | tr -d '\r' | sed -n 's/^[Cc]ontent-[Ll]ength: //p' | head -1)
   if [ "${VSIZE:-0}" -gt 1000000 ] 2>/dev/null; then
     printf "  ✓  03 영상  (%s MB)\n" "$(( VSIZE / 1048576 ))"
   else
@@ -197,9 +197,9 @@ if [ "$OK" = "1" ]; then
   echo "배포 완료 · 총 $(secs)"
   echo
   echo "아이패드에서 열 주소"
-  echo "  $BASE/a/     01"
-  echo "  $BASE/b/     02"
-  echo "  $BASE/c/     03"
+  echo "  $BASE/01/     차 소리에 묻히는 새소리"
+  echo "  $BASE/02/     풀벌레 소리 대신 들리는 사라짐의 소리"
+  echo "  $BASE/03/     짝을 부르는 소리에 다가오는 건 사냥꾼"
   echo
   echo "설치 안내 화면: $BASE/"
 else

@@ -7,23 +7,23 @@
      배포 스크립트가 올릴 때 자동으로 배포 시각을 넣으므로 직접 고치지 않아도 됩니다.
    ============================================================= */
 
-var VERSION = 'soriso-v5';
+var VERSION = 'soriso-v6';
 
 /* 미리 저장해 둘 파일 목록 (영상은 용량이 커서 제외) */
 var SHELL = [
   './',
   './index.html',
-  './a/', './a/index.html', './a/manifest.webmanifest',
-  './b/', './b/index.html', './b/manifest.webmanifest',
-  './c/', './c/index.html', './c/manifest.webmanifest',
+  './01/', './01/index.html', './01/manifest.webmanifest',
+  './02/', './02/index.html', './02/manifest.webmanifest',
+  './03/', './03/index.html', './03/manifest.webmanifest',
   './app.css',
   './app.js',
   './config.js',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './assets/poster/A.png',
-  './assets/poster/B.png',
-  './assets/poster/C.png',
+  './assets/poster/01.png',
+  './assets/poster/02.png',
+  './assets/poster/03.png',
   './assets/fonts/GabiaGosran.woff2'
 ];
 

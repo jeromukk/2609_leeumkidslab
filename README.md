@@ -16,17 +16,17 @@ IDLE(기본 모드) ─ '영상 보기' 탭 ─▶ TITLE(소제목 페이드 인
 ```
 02_APP/
 ├─ index.html              설치 안내 화면 (3종 주소 목록 - 관람객용 아님)
-├─ a/index.html            02 전용 화면  ←┐
-├─ b/index.html            03 전용 화면   │ 아이패드마다 하나씩
-├─ c/index.html            01 전용 화면  ←┘
+├─ 01/index.html           01 전용 화면  ←┐
+├─ 02/index.html           02 전용 화면   │ 아이패드마다 하나씩
+├─ 03/index.html           03 전용 화면  ←┘
 ├─ app.css                 디자인 (Figma 1180x820 좌표 그대로)
 ├─ app.js                  화면 생성 + 동작 (3종 공통)
 ├─ config.js   ★           문구·타이밍·영상 경로 - 여기만 고치면 됩니다
 ├─ sw.js                   서비스워커 (아래 용어 설명 참고)
 ├─ _headers                Cloudflare Pages 캐시 설정
 └─ assets/
-   ├─ video/    A.mp4 / B.mp4 / C.mp4      ← 완성 영상을 여기에
-   ├─ poster/   A.png / B.png / C.png      영상 로딩 전 보여줄 첫 화면
+   ├─ video/    01.mp4 / 02.mp4 / 03.mp4   ← 완성 영상을 여기에
+   ├─ poster/   01.png / 02.png / 03.png   영상 로딩 전 보여줄 첫 화면
    ├─ fonts/    GabiaGosran.woff2          가비아 고스란체
    └─ icons/    icon-192.png / icon-512.png
 ```
@@ -59,9 +59,9 @@ IDLE(기본 모드) ─ '영상 보기' 탭 ─▶ TITLE(소제목 페이드 인
 
 | 파일 | 내용 |
 |---|---|
-| `A.mp4` | 02 · 풀벌레 소리 대신 들리는 사라짐의 소리 |
-| `B.mp4` | 03 · 짝을 부르는 소리에 다가오는 건 사냥꾼 |
-| `C.mp4` | 01 · 차 소리에 묻히는 새소리 |
+| `01.mp4` | 차 소리에 묻히는 새소리 |
+| `02.mp4` | 풀벌레 소리 대신 들리는 사라짐의 소리 |
+| `03.mp4` | 짝을 부르는 소리에 다가오는 건 사냥꾼 |
 
 ### 파일 하나당 25MB 미만으로 맞춰 주세요
 
@@ -82,8 +82,8 @@ Cloudflare Pages는 파일 하나가 **25MiB**를 넘으면 배포를 거부합�
 ```bash
 ffmpeg -i 원본.mov -c:v libx264 -profile:v high -pix_fmt yuv420p \
        -crf 22 -maxrate 8M -bufsize 16M \
-       -c:a aac -b:a 128k -movflags +faststart A.mp4
-ls -lh A.mp4   # 25MB 아래인지 확인
+       -c:a aac -b:a 128k -movflags +faststart 01.mp4
+ls -lh 01.mp4   # 25MB 아래인지 확인
 ```
 
 25MB를 못 맞추면 Cloudflare R2(같은 계정의 파일 저장소, 무료 10GB)에 영상만 올리고
@@ -115,14 +115,13 @@ fonttools ttLib.woff2 compress GabiaGosran.ttf
 한 번 배포하면 주소가 세 개 생깁니다. 아이패드마다 자기 주소를 열어 홈 화면에 추가합니다.
 
 ```
-https://주소/c/     01  차 소리에 묻히는 새소리
-https://주소/a/     02  풀벌레 소리 대신 들리는 사라짐의 소리
-https://주소/b/     03  짝을 부르는 소리에 다가오는 건 사냥꾼
+https://주소/01/     차 소리에 묻히는 새소리
+https://주소/02/     풀벌레 소리 대신 들리는 사라짐의 소리
+https://주소/03/     짝을 부르는 소리에 다가오는 건 사냥꾼
 ```
 
 주소마다 아이콘 이름이 `소리소문 01` / `02` / `03` 으로 따로 붙어서,
 홈 화면에서 어느 기기가 몇 번인지 바로 보입니다.
-회차 순서와 주소 글자(a/b/c)는 서로 다릅니다 - 위 표를 보고 맞춰 주세요.
 
 `https://주소/` 로 열면 세 주소를 고르는 설치 안내 화면이 나옵니다.
 설치할 때만 쓰고, 관람객에게는 보이지 않습니다.

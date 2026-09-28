@@ -32,47 +32,47 @@ window.SORISO_CONFIG = {
        skipTitle: true    영상에 제목이 이미 있을 때, 앱의 제목 화면을 건너뜁니다
        fit: 'contain'     영상이 잘리지 않게 전체를 보여줍니다 (기본값은 'cover')
   */
-  // key(A/B/C)는 URL의 ?type= 값과 같습니다.
+  // key(01/02/03)는 URL의 ?type= 값과 같습니다.
   types: {
-    A: {
-      number: '-02-',                     // IDLE 화면의 회차 표기 (비우면 표기 없이 배치가 조정됩니다)
+    '01': {
+      number: '-01-',                     // IDLE 화면의 회차 표기
       heading: '일상 속 사라짐',            // IDLE 화면의 큰 제목 (3종 공통)
       titleLines: [                       // TITLE 화면에서 페이드 인 되는 소제목
+        '차 소리에 묻히는',
+        '새소리'
+      ],
+      video: 'assets/video/01.mp4',
+      poster: 'assets/poster/01.png',
+      skipTitle: true
+    },
+    '02': {
+      number: '-02-',
+      heading: '일상 속 사라짐',
+      titleLines: [
         '풀벌레 소리 대신 들리는',
         '사라짐의 소리'
       ],
-      video: 'assets/video/A.mp4',
-      poster: 'assets/poster/A.png',
+      video: 'assets/video/02.mp4',
+      poster: 'assets/poster/02.png',
       skipTitle: true
     },
-    B: {
+    '03': {
       number: '-03-',
       heading: '일상 속 사라짐',
       titleLines: [
         '짝을 부르는 소리에',
         '다가오는 건 사냥꾼'
       ],
-      video: 'assets/video/B.mp4',
-      poster: 'assets/poster/B.png',
-      skipTitle: true
-    },
-    C: {
-      number: '-01-',
-      heading: '일상 속 사라짐',
-      titleLines: [
-        '차 소리에 묻히는',
-        '새소리'
-      ],
-      video: 'assets/video/C.mp4',
-      poster: 'assets/poster/C.png',
+      video: 'assets/video/03.mp4',
+      poster: 'assets/poster/03.png',
       skipTitle: true
     }
   },
 
   /* ---------- 이 아이패드의 기본 종류 ---------- */
-  // URL에 ?type=B 를 한 번 붙여서 열면 그 값이 기기에 저장되고,
-  // 다음부터는 주소만 열어도 계속 B로 뜹니다.
-  defaultType: 'A',
+  // URL에 ?type=02 를 한 번 붙여서 열면 그 값이 기기에 저장되고,
+  // 다음부터는 주소만 열어도 계속 02로 뜹니다.
+  defaultType: '01',
 
   /* ---------- UI 문구 ---------- */
   labels: {

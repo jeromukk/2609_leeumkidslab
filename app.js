@@ -13,7 +13,7 @@
 
   var CFG    = window.SORISO_CONFIG;
   var TIMING = CFG.timing;
-  var BASE   = window.SORISO_BASE || '';     // a/b/c 폴더에서는 '../'
+  var BASE   = window.SORISO_BASE || '';     // 01/02/03 폴더에서는 '../'
   var FIXED  = window.SORISO_TYPE || '';     // 폴더에 고정된 종류
   var STORE_KEY = 'soriso.type';
 
@@ -90,7 +90,7 @@
     '  <div id="video-missing" class="missing" hidden>',
     '    <p class="missing__title">영상 파일이 없습니다</p>',
     '    <p class="missing__path">' + esc(BASE + DATA.video) + '</p>',
-    '    <p class="missing__hint">assets/video/ 폴더에 A.mp4 / B.mp4 / C.mp4 를 넣어 주세요.</p>',
+    '    <p class="missing__hint">assets/video/ 폴더에 01.mp4 / 02.mp4 / 03.mp4 를 넣어 주세요.</p>',
     '  </div>',
     '</section>',
 
@@ -98,9 +98,9 @@
     '<div id="admin-panel" class="admin" hidden>',
     '  <p class="admin__title">이 아이패드의 종류</p>',
     '  <div class="admin__row">',
-    '    <button class="admin__btn" data-type="A">A · 01</button>',
-    '    <button class="admin__btn" data-type="B">B · 02</button>',
-    '    <button class="admin__btn" data-type="C">C · 03</button>',
+    '    <button class="admin__btn" data-type="01">01 · 새소리</button>',
+    '    <button class="admin__btn" data-type="02">02 · 풀벌레</button>',
+    '    <button class="admin__btn" data-type="03">03 · 사냥꾼</button>',
     '  </div>',
     '  <p id="admin-info" class="admin__info"></p>',
     '  <button id="admin-close" class="admin__close" type="button">닫기</button>',
